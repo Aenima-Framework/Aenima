@@ -11,6 +11,6 @@ build:
 
 # Restore NuGet Packages
 before_build:
- - cd c:\project\src
+ - cd c:\project\Aenima\src
  - nuget Restore Aenima.sln -PackagesDirectory c:\project\Aenima\packages
 
