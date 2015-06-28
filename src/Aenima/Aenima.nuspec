@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Aenima</id>
+    <version>$version$</version>
+    <title>Aenima Framework</title>
+    <authors>Sérgio Silveira<</authors>
+    <projectUrl>http://github.com/Aenima-Framework/Aenima</projectUrl>
+    <description>An incredibly simple framework to help you build event-sourced applications, that abstracts different storage implementations.</description>
+    <copyright>Copyright 2015 Aenima Framework.</copyright>
+    <tags>aenima aenima-framework event-sourcing cqrs</tags>
+  </metadata>
+</package>
