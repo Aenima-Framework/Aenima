@@ -4,6 +4,7 @@ configuration: Release
 before_build:
  - nuget Restore
 
- build:
+# Configure build
+build:
   parallel: true                 
   project: scr\Aenima.sln 
