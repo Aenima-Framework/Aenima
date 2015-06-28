@@ -14,13 +14,13 @@ clone_folder: c:\projects\Aenima
 configuration: Release
 
 install:
- - set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
+- set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
 
 platform:
- - Any CPU
+- Any CPU
 
 before_build:
- - nuget Restore src\Aenima.sln
+- nuget Restore src\Aenima.sln
 
 build:
   parallel: true                 
@@ -28,4 +28,8 @@ build:
   publish_nuget: false
   #verbosity: minimal
 
-
+deploy:
+- provider: NuGet
+  server: https://www.myget.org/F/aenima-framework/api/v2
+  api_key:
+    secure: 2V/jytVR+S2YuHe6vModHoNJxEHkjEFr1Q4zWtE5ZcKNGJdrT/3tZirbR5ClaNOx
