@@ -9,6 +9,10 @@ assembly_info:
 
 os: Visual Studio 2015 RC # To allow C#6 syntax
 
+nuget:
+  project_feed: true
+  disable_publish_on_pr: true
+
 clone_folder: c:\projects\Aenima
 
 configuration: Release
@@ -36,4 +40,5 @@ deploy:
   server: https://www.myget.org/F/aenima-framework/api/v2
   api_key:
     secure: 2V/jytVR+S2YuHe6vModHoNJxEHkjEFr1Q4zWtE5ZcKNGJdrT/3tZirbR5ClaNOx
+  skip_symbols: true
   artifact: /.*\.nupkg/
