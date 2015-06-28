@@ -1,5 +1,5 @@
 configuration: Release
 
 # Restore NuGet Packages
-before build:
-	-nuget Restore
+before_build:
+	- nuget Restore
