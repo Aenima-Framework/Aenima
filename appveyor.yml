@@ -26,10 +26,14 @@ build:
   parallel: true                 
   project: src\Aenima.sln
   publish_nuget: false
-  #verbosity: minimal
+  verbosity: minimal
+
+artifacts:
+- path: '*.nupkg'
 
 deploy:
 - provider: NuGet
   server: https://www.myget.org/F/aenima-framework/api/v2
   api_key:
     secure: 2V/jytVR+S2YuHe6vModHoNJxEHkjEFr1Q4zWtE5ZcKNGJdrT/3tZirbR5ClaNOx
+  artifact: /.*\.nupkg/
