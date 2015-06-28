@@ -2,7 +2,7 @@ configuration: Release
 
 # Restore NuGet Packages
 before_build:
- - nuget Restore
+ - nuget Restore scr\Aenima.sln
 
 # Configure build
 build:
