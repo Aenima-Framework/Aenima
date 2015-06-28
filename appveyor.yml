@@ -1,16 +1,17 @@
-platform:
- - Any CPU
+clone_folder: c:\project\
 
 configuration: Release
 
+platform:
+ - Any CPU
+
+before_build:
+ - nuget Restore src\Aenima.sln -PackagesDirectory c:\project\Aenima\packages
+
 build:
   parallel: true                 
-  project: Aenima.sln
+  project: src\Aenima.sln
   publish_nuget: false
   verbosity: minimal
 
-# Restore NuGet Packages
-before_build:
- - cd c:\project\Aenima\src
- - nuget Restore Aenima.sln -PackagesDirectory c:\project\Aenima\packages
 
