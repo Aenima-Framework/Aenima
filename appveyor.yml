@@ -20,7 +20,7 @@ platform:
  - Any CPU
 
 before_build:
- - nuget Restore src\Aenima.sln -PackagesDirectory \packages
+ - nuget Restore src\Aenima.sln
 
 build:
   parallel: true                 
