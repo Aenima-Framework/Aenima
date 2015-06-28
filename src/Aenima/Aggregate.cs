@@ -21,7 +21,9 @@ namespace Aenima
         public string Id { get; private set; }
         public int Version { get; private set; }
 
-        public int ChangedVersion => Version + this.changes.Count;
+        public int ChangedVersion {
+            get { return Version + this.changes.Count; }
+        }
 
         void Mutate(IDomainEvent domainEvent)
         {
