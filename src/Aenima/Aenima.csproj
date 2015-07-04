@@ -41,13 +41,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Exceptions\AggregateNotFoundException.cs" />
-    <Compile Include="AggregateRepository.cs" />
+    <Compile Include="Repository.cs" />
     <Compile Include="Aggregate.cs" />
     <Compile Include="Exceptions\AggregateConcurrencyException.cs" />
     <Compile Include="Exceptions\AggregateDeletedException.cs" />
     <Compile Include="IAggregate.cs" />
     <Compile Include="IAggregateFactory.cs" />
-    <Compile Include="IAggregateRepository.cs" />
+    <Compile Include="IRepository.cs" />
     <Compile Include="DomainEvent.cs" />
     <Compile Include="IDomainEvent.cs" />
     <Compile Include="IDomainEventPublisher.cs" />

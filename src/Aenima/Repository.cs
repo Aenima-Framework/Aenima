@@ -8,7 +8,7 @@ using Aenima.System.Extensions;
 
 namespace Aenima
 {
-    public class AggregateRepository : IAggregateRepository
+    public class Repository : IRepository
     {
         private const int PageSizeReadBuffer = 200;
 
@@ -16,7 +16,7 @@ namespace Aenima
         private readonly IDomainEventPublisher domainEventPublisher;
         private readonly IDomainEventSerializer serializer;
 
-        public AggregateRepository(
+        public Repository(
             IEventStore eventStore,
             IDomainEventSerializer serializer,
             IDomainEventPublisher domainEventPublisher = null)
