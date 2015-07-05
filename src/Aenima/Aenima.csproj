@@ -40,18 +40,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Exceptions\AggregateNotFoundException.cs" />
-    <Compile Include="Repository.cs" />
     <Compile Include="Aggregate.cs" />
+    <Compile Include="AggregateFactory.cs" />
+    <Compile Include="EventSerializerExtensions.cs" />
+    <Compile Include="Exceptions\AggregateNotFoundException.cs" />
     <Compile Include="Exceptions\AggregateConcurrencyException.cs" />
     <Compile Include="Exceptions\AggregateDeletedException.cs" />
     <Compile Include="IAggregate.cs" />
     <Compile Include="IAggregateFactory.cs" />
+    <Compile Include="IEvent.cs" />
+    <Compile Include="IEventPublisher.cs" />
+    <Compile Include="IEventSerializer.cs" />
     <Compile Include="IRepository.cs" />
-    <Compile Include="DomainEvent.cs" />
-    <Compile Include="IDomainEvent.cs" />
-    <Compile Include="IDomainEventPublisher.cs" />
-    <Compile Include="IDomainEventSerializer.cs" />
+    <Compile Include="IState.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\Log.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -66,6 +67,8 @@
     <Compile Include="Exceptions\StreamConcurrencyException.cs" />
     <Compile Include="Exceptions\StreamDeletedException.cs" />
     <Compile Include="Exceptions\StreamNotFoundException.cs" />
+    <Compile Include="Repository.cs" />
+    <Compile Include="State.cs" />
     <Compile Include="System\Extensions\DictionaryExtensions.cs" />
     <Compile Include="System\Extensions\EnumerableExtensions.cs" />
     <Compile Include="System\Extensions\ExpressionExtensions.cs" />

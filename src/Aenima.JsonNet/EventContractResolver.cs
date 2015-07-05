@@ -4,9 +4,9 @@ using Newtonsoft.Json.Serialization;
 
 namespace Aenima.JsonNet
 {
-    internal class ToDomainEventContractResolver : DefaultContractResolver
+    internal class EventContractResolver : DefaultContractResolver
     {
-        public static IContractResolver Instance => new ToDomainEventContractResolver();
+        public static IContractResolver Instance => new EventContractResolver();
 
         protected override JsonProperty CreateProperty(
             MemberInfo member,
@@ -17,6 +17,7 @@ namespace Aenima.JsonNet
             if(!prop.Writable)
             {
                 var property = member as PropertyInfo;
+
                 if(property != null)
                 {
                     var hasPrivateSetter = property.GetSetMethod(true) != null;

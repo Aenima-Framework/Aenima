@@ -17,9 +17,9 @@ namespace Aenima.JsonNet.Tests
         public void ReturnsValidNewStreamEvent_WithoutExtraHeaders()
         {
             // arrange
-            var sut = new JsonNetDomainEventSerializer();
+            var sut = new JsonNetEventSerializer();
             
-            var domainEvent = new SomethingHappened { SomeoneDidIt = Guid.NewGuid().ToString() } as IDomainEvent;
+            var domainEvent = new SomethingHappened { SomeoneDidIt = Guid.NewGuid().ToString() } as IEvent;
 
             domainEvent.SetMetadata(
                 id              : Guid.NewGuid(), 
@@ -40,8 +40,8 @@ namespace Aenima.JsonNet.Tests
             var expectedResult = new NewStreamEvent(
                 domainEvent.Id,
                 "SomethingHappened",
-                JsonConvert.SerializeObject(domainEvent, JsonNetDomainEventSerializer.ToNewStreamEventSerializerSettings),
-                JsonConvert.SerializeObject(eventHeaders, JsonNetDomainEventSerializer.ToNewStreamEventSerializerSettings));
+                JsonConvert.SerializeObject(domainEvent, JsonNetEventSerializer.ToNewStreamEventSerializerSettings),
+                JsonConvert.SerializeObject(eventHeaders, JsonNetEventSerializer.ToNewStreamEventSerializerSettings));
 
             // act
             var result = sut.ToNewStreamEvent(domainEvent);
@@ -54,7 +54,7 @@ namespace Aenima.JsonNet.Tests
         public void ReturnsValidNewStreamEvent_WithExtraHeaders()
         {
             // arrange
-            var sut = new JsonNetDomainEventSerializer();
+            var sut = new JsonNetEventSerializer();
 
             var domainEvent = new SomethingHappened { SomeoneDidIt = Guid.NewGuid().ToString() } as IDomainEvent;
 
@@ -85,8 +85,8 @@ namespace Aenima.JsonNet.Tests
             var expectedResult = new NewStreamEvent(
                 domainEvent.Id,
                 "SomethingHappened",
-                JsonConvert.SerializeObject(domainEvent, JsonNetDomainEventSerializer.ToNewStreamEventSerializerSettings),
-                JsonConvert.SerializeObject(eventHeaders, JsonNetDomainEventSerializer.ToNewStreamEventSerializerSettings));
+                JsonConvert.SerializeObject(domainEvent, JsonNetEventSerializer.ToNewStreamEventSerializerSettings),
+                JsonConvert.SerializeObject(eventHeaders, JsonNetEventSerializer.ToNewStreamEventSerializerSettings));
 
             // act
             var result = sut.ToNewStreamEvent(domainEvent, extraHeaders);
@@ -99,7 +99,7 @@ namespace Aenima.JsonNet.Tests
         public void ReturnsValidDomainEvent()
         {
             // arrange
-            var sut = new JsonNetDomainEventSerializer();
+            var sut = new JsonNetEventSerializer();
 
             var expectedResult = new SomethingHappened { SomeoneDidIt = Guid.NewGuid().ToString() } as IDomainEvent;
 
@@ -122,8 +122,8 @@ namespace Aenima.JsonNet.Tests
             var newStreamEvent = new StreamEvent(
                 id: expectedResult.Id,
                 type: "SomethingHappened", 
-                data: JsonConvert.SerializeObject(expectedResult, JsonNetDomainEventSerializer.ToDomainEventSerializerSettings), 
-                metadata: JsonConvert.SerializeObject(eventHeaders, JsonNetDomainEventSerializer.ToDomainEventSerializerSettings), 
+                data: JsonConvert.SerializeObject(expectedResult, JsonNetEventSerializer.Settings), 
+                metadata: JsonConvert.SerializeObject(eventHeaders, JsonNetEventSerializer.Settings), 
                 storedOn: DateTime.MinValue,
                 streamId: expectedResult.AggregateId, 
                 streamVersion: expectedResult.AggregateVersion);

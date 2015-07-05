@@ -45,9 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="JsonNetDomainEventSerializer.cs" />
-    <Compile Include="ToDomainEventContractResolver.cs" />
-    <Compile Include="ToNewStreamEventContractResolver.cs" />
+    <Compile Include="JsonNetEventSerializer.cs" />
+    <Compile Include="EventContractResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

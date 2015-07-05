@@ -1,77 +1,40 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Aenima.System;
-using Aenima.System.Extensions;
-
-// ReSharper disable NonReadonlyMemberInGetHashCode
-// ReSharper disable UnusedAutoPropertyAccessor.Local
 
 namespace Aenima
 {
-    public abstract class Aggregate
+    public abstract class Aggregate<TState> 
         : IAggregate, IEquatable<IAggregate>
+        where TState : class, IState
     {
-        private readonly LinkedList<IDomainEvent> changes = new LinkedList<IDomainEvent>();
+        private readonly LinkedList<IEvent> changes = new LinkedList<IEvent>();
 
-        protected Aggregate()
+        protected TState State;
+
+        public string Id => this.State.Id;
+
+        public int Version => this.State.Version;
+
+        protected void Apply(IEvent e)
         {
-            Version = -1;
+            this.changes.AddLast(e);
+            this.State.Mutate(e);
         }
 
-        public string Id { get; private set; }
-        public int Version { get; private set; }
-
-        public int ChangedVersion => Version + this.changes.Count;
-
-        void Mutate(IDomainEvent domainEvent)
+        IEnumerable<IEvent> IAggregate.GetChanges()
         {
-            // .NET magic to call one of the 'When' handlers with matching signature 
-            ((dynamic)this).When((dynamic)domainEvent);
-        }
-
-        void IAggregate.Apply(IDomainEvent domainEvent)
-        {
-            // pass each event to modify current in-memory state
-            Mutate(domainEvent);
-
-            // add metadata
-            domainEvent.SetMetadata(
-                id              : SequentialGuid.New(), 
-                raisedOn        : DateTime.UtcNow, 
-                aggregateId     : Id, 
-                aggregateVersion: ChangedVersion + 1);
-
-            // append event to change list for further persistence
-            lock(this.changes) 
-            {
-                this.changes.AddLast(domainEvent);
-            }
-        }
-
-        void IAggregate.Hydrate(IEnumerable<IDomainEvent> events)
-        {
-            foreach(var e in events)
-            {
-                Mutate(e);
-                Version++;
-            }
+            return this.changes;
         }
 
         void IAggregate.AcceptChanges()
         {
-            lock(this.changes)
-            {
-                Version = ChangedVersion;
-                this.changes.Clear();
-            }
+            this.changes.Clear();
         }
 
-        IEnumerable<IDomainEvent> IAggregate.GetChanges()
+        void IAggregate.Restore(IState state)
         {
-            lock(this.changes)
-            {
-                return this.changes;
-            }
+            this.State = state as TState;
         }
 
         public virtual bool Equals(IAggregate other)
@@ -91,7 +54,8 @@ namespace Aenima
 
         public override string ToString()
         {
-            return "{0}-{1:000}".FormatWith(Id, Version);
+            return $"{GetType().Name}-{Id} v{Version:000}";
         }
+
     }
 }

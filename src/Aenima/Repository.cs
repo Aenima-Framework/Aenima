@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Aenima.EventStore;
 using Aenima.Exceptions;
+using Aenima.Logging;
 using Aenima.System;
 using Aenima.System.Extensions;
 
@@ -10,29 +12,34 @@ namespace Aenima
 {
     public class Repository : IRepository
     {
+        private readonly ILog log = Log.ForContext<Repository>();
+
         private const int PageSizeReadBuffer = 200;
 
-        private readonly IEventStore eventStore;
-        private readonly IDomainEventPublisher domainEventPublisher;
-        private readonly IDomainEventSerializer serializer;
+        private readonly IEventStore store;
+        private readonly IEventSerializer serializer;
+        private readonly IEventPublisher publisher;
+        private readonly IAggregateFactory aggregateFactory;
 
         public Repository(
-            IEventStore eventStore,
-            IDomainEventSerializer serializer,
-            IDomainEventPublisher domainEventPublisher = null)
+            IEventStore store,
+            IEventSerializer serializer,
+            IEventPublisher publisher,
+            IAggregateFactory aggregateFactory)
         {
-            this.eventStore           = eventStore;
-            this.domainEventPublisher = domainEventPublisher;
-            this.serializer           = serializer;
+            this.store            = store;
+            this.serializer       = serializer;
+            this.publisher        = publisher;
+            this.aggregateFactory = aggregateFactory;
         }
 
         public async Task<TAggregate> GetById<TAggregate>(string id, int version) where TAggregate : class, IAggregate, new()
         {
             Guard.NullOrWhiteSpace(() => id);
 
-            var streamName = "{0}-{1}".FormatWith(typeof(TAggregate), id);
-            var aggregate = new TAggregate();
-            var pageStart = 0;
+            var streamId   = GetStreamId<TAggregate>(id);
+            var pageStart  = 0;
+            var events     = new List<IEvent>();
 
             try {
                 StreamEventsPage currentPage;
@@ -41,10 +48,11 @@ namespace Aenima
                         ? PageSizeReadBuffer
                         : version - pageStart + 1;
 
-                    currentPage = await this.eventStore.ReadStream(streamName, pageStart, eventCount);
+                    currentPage = await this.store.ReadStream(streamId, pageStart, eventCount);
 
-                    aggregate.Hydrate(
-                        currentPage.Events.Select(streamEvent => this.serializer.FromStreamEvent(streamEvent)));
+                    events.AddRange(
+                        currentPage.Events.Select(streamEvent =>
+                            this.serializer.FromStreamEvent<IEvent>(streamEvent)));
 
                     pageStart = currentPage.NextVersion;
                 }
@@ -57,7 +65,8 @@ namespace Aenima
                 throw new AggregateDeletedException<TAggregate>(id, version, ex);
             }
 
-            // TODO: should probably validate before loading events.
+            var aggregate = this.aggregateFactory.Create<TAggregate>(events);
+
             if(aggregate.Version != version && version < int.MaxValue) {
                 throw new AggregateConcurrencyException<TAggregate>(id, version, aggregate.Version);
             }
@@ -65,47 +74,68 @@ namespace Aenima
             return aggregate;
         }
 
-        public async Task Save<TAggregate>(TAggregate aggregate, IDictionary<string, object> headers = null)
+        public async Task  Save<TAggregate>(TAggregate aggregate, IDictionary<string, object> metadata = null)
             where TAggregate : class, IAggregate
         {
             Guard.NullOrDefault(() => aggregate);
 
-            if(!aggregate.GetChanges()
-                .Any()) {
+            if(!aggregate.GetChanges().Any())
                 return;
-            }
 
-            // set headers
             var aggregateType = typeof(TAggregate);
-
-            var defaultHeaders = new Dictionary<string, object>
-            {
-                { "StreamId", "{0}-{1}".FormatWith(aggregateType.Name, aggregate.Id) },
-                { "CommitId", SequentialGuid.New() },
-                { "AggregateTypeName", aggregateType.Name },
-                { "AggregateClrType", aggregateType }
-            };
+            var streamId      = GetStreamId(aggregateType, aggregate.Id);
+            var commitId      = SequentialGuid.New();
 
             var events = aggregate
                 .GetChanges()
-                .Select(
-                    domainEvent => this.serializer.ToNewStreamEvent(
-                        domainEvent,
-                        defaultHeaders.Merge(headers)));
+                .Select((e, idx) => {
+                    var eventMetadata = new Dictionary<string, object> {
+                        { Headers.EventId         , SequentialGuid.New() },
+                        { Headers.CommitId        , commitId },
+                        { Headers.AggregateVersion, aggregate.Version + idx + 1 },
+                        { Headers.EventClrType    , e.GetType().AssemblyQualifiedName },
+                        { Headers.AggregateClrType, aggregateType.AssemblyQualifiedName },
+                    };
+                    return this.serializer.ToNewStreamEvent(e, eventMetadata.Merge(metadata));
+                });
 
             try {
-                await this.eventStore.AppendStream(aggregate.Id, aggregate.Version, events);
+                await this.store.AppendStream(streamId, aggregate.Version, events);
             }
             catch(StreamConcurrencyException ex) {
                 throw new AggregateConcurrencyException<TAggregate>(aggregate.Id, aggregate.Version, ex.ActualVersion);
             }
 
-            aggregate.GetChanges()
-                .WithEach(
-                    e => { this.domainEventPublisher.Publish(e); }
-                );
+            foreach(var e in aggregate.GetChanges()) {
+                try {
+                    await this.publisher.Publish(e);
+                }
+                catch(Exception ex) {
+                    this.log.Warning(ex, "Failed to publish {@Event}!", e);
+                }
+            }
 
             aggregate.AcceptChanges();
         }
+
+        private static string GetStreamId<T>(string id)
+        {
+            return GetStreamId(typeof(T), id);
+        }
+
+        private static string GetStreamId(Type type, string id)
+        {
+            return $"{type.Name}-{id}";
+        }
+    }
+
+
+    public static class Headers
+    {
+        public const string CommitId         = "CommitId";
+        public const string EventId          = "EventId";
+        public const string EventClrType     = "EventClrType";
+        public const string AggregateVersion = "AggregateVersion";
+        public const string AggregateClrType = "AggregateClrType";
     }
 }

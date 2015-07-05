@@ -44,7 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RebusDomainEventPublisher.cs" />
+    <Compile Include="RebusEventPublisher.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
