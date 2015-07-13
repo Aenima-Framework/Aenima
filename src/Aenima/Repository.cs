@@ -74,7 +74,7 @@ namespace Aenima
             return aggregate;
         }
 
-        public async Task  Save<TAggregate>(TAggregate aggregate, IDictionary<string, object> metadata = null)
+        public async Task  Save<TAggregate>(TAggregate aggregate, IDictionary<string, object> headers = null)
             where TAggregate : class, IAggregate
         {
             Guard.NullOrDefault(() => aggregate);
@@ -96,7 +96,7 @@ namespace Aenima
                         { Headers.EventClrType    , e.GetType().AssemblyQualifiedName },
                         { Headers.AggregateClrType, aggregateType.AssemblyQualifiedName },
                     };
-                    return this.serializer.ToNewStreamEvent(e, eventMetadata.Merge(metadata));
+                    return this.serializer.ToNewStreamEvent(e, eventMetadata.Merge(headers));
                 });
 
             try {

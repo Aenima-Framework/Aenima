@@ -56,6 +56,5 @@ namespace Aenima
         {
             return $"{GetType().Name}-{Id} v{Version:000}";
         }
-
     }
 }

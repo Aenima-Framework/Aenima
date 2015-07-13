@@ -15,15 +15,15 @@ namespace Aenima.JsonNet
             ContractResolver  = EventContractResolver.Instance
         };
 
-        public NewStreamEvent ToNewStreamEvent<TEvent>(TEvent e, IDictionary<string, object> metadata = null) where TEvent : class, IEvent
+        public NewStreamEvent ToNewStreamEvent<TEvent>(TEvent e, IDictionary<string, object> headers = null) where TEvent : class, IEvent
         {
             var jsonData     = JsonConvert.SerializeObject(e, Settings);
-            var jsonMetadata = metadata != null 
-                ? JsonConvert.SerializeObject(metadata, Settings)
+            var jsonMetadata = headers != null 
+                ? JsonConvert.SerializeObject(headers, Settings)
                 : string.Empty;
 
-            var eventId = metadata != null && metadata.ContainsKey("Id")
-                ? metadata["Id"].ToGuidOrDefault(SequentialGuid.New())
+            var eventId = headers != null && headers.ContainsKey("Id")
+                ? headers["Id"].ToGuidOrDefault(SequentialGuid.New())
                 : SequentialGuid.New();
 
             return new NewStreamEvent(
@@ -33,9 +33,9 @@ namespace Aenima.JsonNet
                 metadata: jsonMetadata);
         }
 
-        public TEvent FromStreamEvent<TEvent>(StreamEvent streamEvent, out IDictionary<string, object> metadata) where TEvent : class, IEvent
+        public TEvent FromStreamEvent<TEvent>(StreamEvent streamEvent, out IDictionary<string, object> headers) where TEvent : class, IEvent
         {
-            metadata =
+            headers =
                 JsonConvert.DeserializeObject(
                     streamEvent.Metadata,
                     typeof(IDictionary<string, object>),
@@ -64,27 +64,27 @@ namespace Aenima.JsonNet
     //        ContractResolver = EventContractResolver.Instance
     //    };
 
-    //    public NewStreamEvent ToNewStreamEvent<TEvent>(TEvent e, IDictionary<string, object> metadata = null) where TEvent : class, IEvent
+    //    public NewStreamEvent ToNewStreamEvent<TEvent>(TEvent e, IDictionary<string, object> headers = null) where TEvent : class, IEvent
     //    {
     //        var jsonData = JsonConvert.SerializeObject(e, ToNewStreamEventSerializerSettings);
-    //        var jsonMetadata = JsonConvert.SerializeObject(metadata, ToNewStreamEventSerializerSettings);
+    //        var jsonMetadata = JsonConvert.SerializeObject(headers, ToNewStreamEventSerializerSettings);
 
-    //        return new NewStreamEvent((Guid)metadata["Id"], e.GetType().Name, jsonData, jsonMetadata);
+    //        return new NewStreamEvent((Guid)headers["Id"], e.GetType().Name, jsonData, jsonMetadata);
     //    }
 
-    //    public TEvent FromStreamEvent<TEvent>(StreamEvent streamEvent, out IDictionary<string, object> metadata) where TEvent : class, IEvent
+    //    public TEvent FromStreamEvent<TEvent>(StreamEvent streamEvent, out IDictionary<string, object> headers) where TEvent : class, IEvent
     //    {
-    //        metadata =
+    //        headers =
     //            JsonConvert.DeserializeObject(
     //                streamEvent.Data,
     //                typeof(IDictionary<string, object>),
     //                Settings) as IDictionary<string, object>;
 
-    //        var eventClrType = metadata?["EventClrType"]?.ToString();
+    //        var eventClrType = headers?["EventClrType"]?.ToString();
 
     //        if(eventClrType == null)
     //        {
-    //            throw new MissingFieldException($"Failed to find event CLR Type for stream event with Type {streamEvent.Type}! Invalid metadata!");
+    //            throw new MissingFieldException($"Failed to find event CLR Type for stream event with Type {streamEvent.Type}! Invalid headers!");
     //        }
 
     //        return JsonConvert.DeserializeObject(

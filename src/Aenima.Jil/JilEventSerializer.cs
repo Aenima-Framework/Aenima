@@ -12,15 +12,15 @@ namespace Aenima.Jil
             excludeNulls: true,
             unspecifiedDateTimeKindBehavior: UnspecifiedDateTimeKindBehavior.IsUTC);
 
-        public NewStreamEvent ToNewStreamEvent<TEvent>(TEvent e, IDictionary<string, object> metadata = null) where TEvent : class, IEvent
+        public NewStreamEvent ToNewStreamEvent<TEvent>(TEvent e, IDictionary<string, object> headers = null) where TEvent : class, IEvent
         {
-            var jsonData = JSON.Serialize(e, SerializationOptions);
-            var jsonMetadata = metadata != null
-                ? JSON.Serialize(metadata, SerializationOptions)
+            var jsonData     = JSON.Serialize(e, SerializationOptions);
+            var jsonMetadata = headers != null
+                ? JSON.Serialize(headers, SerializationOptions)
                 : string.Empty;
 
-            var eventId = metadata != null && metadata.ContainsKey("Id")
-               ? metadata["Id"].ToGuidOrDefault(SequentialGuid.New())
+            var eventId = headers != null && headers.ContainsKey("Id")
+               ? headers["Id"].ToGuidOrDefault(SequentialGuid.New())
                : SequentialGuid.New();
 
             return new NewStreamEvent(
@@ -30,9 +30,9 @@ namespace Aenima.Jil
                 metadata: jsonMetadata);
         }
 
-        public TEvent FromStreamEvent<TEvent>(StreamEvent streamEvent, out IDictionary<string, object> metadata) where TEvent : class, IEvent
+        public TEvent FromStreamEvent<TEvent>(StreamEvent streamEvent, out IDictionary<string, object> headers) where TEvent : class, IEvent
         {
-            metadata =
+            headers =
                 JSON.Deserialize<IDictionary<string, object>>(
                     streamEvent.Metadata,
                     SerializationOptions);

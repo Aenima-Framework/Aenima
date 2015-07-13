@@ -11,33 +11,19 @@ namespace Aenima.System.Extensions
             return source == null || !source.Any();
         }
 
-        public static bool IsNotNullOrEmpty<T>(this IEnumerable<T> source)
-        {
-            return !source.IsNullOrEmpty();
-        }
-
         public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T> source)
         {
             return source ?? Enumerable.Empty<T>();
         }
 
-        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> source, Action<T> action)
+        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> source, Func<T,T> func)
         {
-            Guard.NullOrDefault(() => action);
-
-            foreach(var item in source.EmptyIfNull()) {
-                action(item);
-                yield return item;
-            }
+            return source.Select(func);
         }
 
         public static void WithEach<T>(this IEnumerable<T> source, Action<T> action)
         {
-            Guard.NullOrDefault(() => action);
-
-            foreach(var item in source.EmptyIfNull()) {
-                action(item);
-            }
+            foreach(var item in source) action(item);
         }
     }
 }

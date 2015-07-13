@@ -13,18 +13,18 @@ namespace Aenima
         public TAggregate Create<TAggregate>(IEnumerable<IEvent> events)
             where TAggregate : class, IAggregate
         {
-            var aggregateType = typeof(TAggregate);
-
+            var aggregateType      = typeof(TAggregate);
             var aggregateStateType = Type.GetType($"{aggregateType.Name}State");
 
             if(aggregateStateType == null) {
-                throw new InvalidOperationException("Failed to find state for '{0}' aggregate.".FormatWith(aggregateType.Name));
+                throw new InvalidOperationException($"Failed to find state for \"{aggregateType.Name}\" aggregate.");
             }
 
             var state = (IState)Activator.CreateInstance(aggregateStateType);
-            foreach(var e in events) {
-                state.Mutate(e);
-            }
+            events.WithEach(state.Mutate);
+            //foreach(var e in events) {
+            //    state.Mutate(e);
+            //}
 
             var aggregate = (TAggregate)Activator.CreateInstance(typeof(TAggregate), state);
             aggregate.Restore(state);

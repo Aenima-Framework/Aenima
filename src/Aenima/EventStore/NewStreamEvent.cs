@@ -14,10 +14,10 @@ namespace Aenima.EventStore
 
         public NewStreamEvent(Guid id, string type, string data, string metadata)
         {
-            this.Id       = id;
-            this.Type     = type;
-            this.Data     = data;
-            this.Metadata = metadata;
+            Id       = id;
+            Type     = type;
+            Data     = data;
+            Metadata = metadata;
         }
     }
 }

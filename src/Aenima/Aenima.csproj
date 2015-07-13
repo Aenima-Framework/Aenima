@@ -73,6 +73,7 @@
     <Compile Include="System\Extensions\EnumerableExtensions.cs" />
     <Compile Include="System\Extensions\ExpressionExtensions.cs" />
     <Compile Include="System\Extensions\GenericExtensions.cs" />
+    <Compile Include="System\Extensions\ObjectExtensions.cs" />
     <Compile Include="System\Extensions\StringExtensions.cs" />
     <Compile Include="System\Guard.cs" />
     <Compile Include="System\HashCodeHelper.cs" />

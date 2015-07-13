@@ -24,16 +24,5 @@ namespace Aenima.System.Extensions
         {
             return EqualityComparer<T>.Default.Equals(source, default(T));
         }
-
-        /// <summary>
-        ///     A T extension method that query if 'source' does not equals it's default value.
-        /// </summary>
-        /// <typeparam name="T">Generic type parameter.</typeparam>
-        /// <param name="source">The object to act on.</param>
-        /// <returns>true if not default, false if not.</returns>
-        public static bool IsNotDefault<T>(this T source)
-        {
-            return !IsDefault(source);
-        }
     }
 }

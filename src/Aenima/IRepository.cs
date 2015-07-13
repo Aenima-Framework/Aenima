@@ -6,6 +6,6 @@ namespace Aenima
     public interface IRepository
     {
         Task<TAggregate> GetById<TAggregate>(string identity, int version) where TAggregate : class, IAggregate, new();
-        Task Save<T>(T aggregate, IDictionary<string, object> metadata = null) where T : class, IAggregate;
+        Task Save<T>(T aggregate, IDictionary<string, object> headers = null) where T : class, IAggregate;
     }
 }
