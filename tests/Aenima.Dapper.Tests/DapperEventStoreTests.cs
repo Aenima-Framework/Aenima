@@ -27,8 +27,7 @@ namespace Aenima.Dapper.Tests
         {
             // arrange
             var events = AutoFixture
-                .CreateMany<NewStreamEvent>()
-            ;
+                .CreateMany<NewStreamEvent>();
 
             var sut = new DapperEventStore(new DapperEventStoreSettings(ConnectionString));
 
@@ -41,7 +40,7 @@ namespace Aenima.Dapper.Tests
         }
 
         //[TestCase(0, 3)]
-        [TestCase(0, 10)]
+        [TestCase(-1, 10)]
         public async Task ReadStream_ReturnsEvents(int fromVersion, int eventCount)
         {
             // arrange

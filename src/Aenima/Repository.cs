@@ -33,7 +33,8 @@ namespace Aenima
             this.aggregateFactory = aggregateFactory;
         }
 
-        public async Task<TAggregate> GetById<TAggregate>(string id, int version) where TAggregate : class, IAggregate, new()
+        public async Task<TAggregate> GetById<TAggregate>(string id, int version) 
+            where TAggregate : class, IAggregate, new()
         {
             Guard.NullOrWhiteSpace(() => id);
 
@@ -86,32 +87,50 @@ namespace Aenima
             var streamId      = GetStreamId(aggregateType, aggregate.Id);
             var commitId      = SequentialGuid.New();
 
-            var events = aggregate
-                .GetChanges()
-                .Select((e, idx) => {
+            var metaEvents = aggregate
+               .GetChanges()
+               .Select((e, idx) => {
                     var eventMetadata = new Dictionary<string, object> {
-                        { Headers.EventId         , SequentialGuid.New() },
-                        { Headers.CommitId        , commitId },
-                        { Headers.AggregateVersion, aggregate.Version + idx + 1 },
-                        { Headers.EventClrType    , e.GetType().AssemblyQualifiedName },
-                        { Headers.AggregateClrType, aggregateType.AssemblyQualifiedName },
+                        { EventMetadataKeys.Id              , SequentialGuid.New() },
+                        { EventMetadataKeys.Version         , aggregate.Version + idx + 1 },
+                        { EventMetadataKeys.ClrType         , e.GetType().AssemblyQualifiedName },
+                        { EventMetadataKeys.RaisedOn        , DateTime.UtcNow },
+                        { EventMetadataKeys.AggregateId     , aggregate.Id },
+                        { EventMetadataKeys.AggregateVersion, aggregate.Version },
+                        { EventMetadataKeys.AggregateClrType, aggregateType.AssemblyQualifiedName },
+                        { EventMetadataKeys.CommitId        , commitId },
                     };
-                    return this.serializer.ToNewStreamEvent(e, eventMetadata.Merge(headers));
-                });
+                    return new {
+                        Event    = e,
+                        Metadata = eventMetadata.Merge(headers)
+                    };
+                })
+                .ToList();
 
             try {
-                await this.store.AppendStream(streamId, aggregate.Version, events);
+
+                var newStreamEvents = metaEvents.Select(metaEvent =>
+                    this.serializer.ToNewStreamEvent(metaEvent.Event, metaEvent.Metadata));
+
+                await this.store.AppendStream(
+                    streamId, 
+                    aggregate.Version,
+                    newStreamEvents);
             }
             catch(StreamConcurrencyException ex) {
                 throw new AggregateConcurrencyException<TAggregate>(aggregate.Id, aggregate.Version, ex.ActualVersion);
             }
 
-            foreach(var e in aggregate.GetChanges()) {
+            foreach(var metaEvent in metaEvents) {
                 try {
-                    await this.publisher.Publish(e);
+                    await this.publisher.Publish(metaEvent.Event, metaEvent.Metadata);
                 }
                 catch(Exception ex) {
-                    this.log.Warning(ex, "Failed to publish {@Event}!", e);
+                    this.log.Warning(
+                        ex, 
+                        "Failed to publish {@Event} with the following metadata {@Metadata}!", 
+                        metaEvent.Event, 
+                        metaEvent.Metadata);
                 }
             }
 
@@ -127,15 +146,5 @@ namespace Aenima
         {
             return $"{type.Name}-{id}";
         }
-    }
-
-
-    public static class Headers
-    {
-        public const string CommitId         = "CommitId";
-        public const string EventId          = "EventId";
-        public const string EventClrType     = "EventClrType";
-        public const string AggregateVersion = "AggregateVersion";
-        public const string AggregateClrType = "AggregateClrType";
     }
 }
