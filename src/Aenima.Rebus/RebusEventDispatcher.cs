@@ -5,11 +5,11 @@ using static System.String;
 
 namespace Aenima.Rebus
 {
-    public class RebusEventPublisher : IEventPublisher
+    public class RebusEventDispatcher : IEventDispatcher
     {
         private readonly IBus bus;
 
-        public RebusEventPublisher(IBus bus)
+        public RebusEventDispatcher(IBus bus)
         {
             this.bus = bus;
         }

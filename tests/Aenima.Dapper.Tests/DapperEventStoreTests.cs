@@ -40,7 +40,7 @@ namespace Aenima.Dapper.Tests
         }
 
         //[TestCase(0, 3)]
-        [TestCase(-1, 10)]
+        [TestCase(0, 10)]
         public async Task ReadStream_ReturnsEvents(int fromVersion, int eventCount)
         {
             // arrange
@@ -60,8 +60,9 @@ namespace Aenima.Dapper.Tests
 
             var expectedPage = AutoFixture
                 .Build<StreamEventsPage>()
-                .With(page => page.FromVersion, fromVersion)
-                .With(page => page.NextVersion, 0)
+                .With(page => page.FromVersion, 0)
+                .With(page => page.NextVersion, -1)
+                .With(page => page.LastVersion, eventCount-1)
                 .With(page => page.IsEndOfStream, true)
                 .With(page => page.Events, events.AsReadOnly())
                 .Create();
@@ -70,11 +71,11 @@ namespace Aenima.Dapper.Tests
 
             await sut.AppendStream(
                 expectedPage.StreamId, 
-                expectedPage.FromVersion, 
+                -1, 
                 expectedPage.Events.Select(se => new NewStreamEvent(se.Id, se.Type, se.Data, se.Metadata)).ToList());
 
             // act
-            var result = await sut.ReadStream(expectedPage.StreamId,expectedPage.FromVersion,expectedPage.Events.Count);
+            var result = await sut.ReadStream(expectedPage.StreamId, expectedPage.FromVersion, eventCount);
 
             // assert
             result.ShouldBeEquivalentTo(expectedPage);

@@ -18,18 +18,18 @@ namespace Aenima
 
         private readonly IEventStore store;
         private readonly IEventSerializer serializer;
-        private readonly IEventPublisher publisher;
+        private readonly IEventDispatcher dispatcher;
         private readonly IAggregateFactory aggregateFactory;
 
         public Repository(
             IEventStore store,
             IEventSerializer serializer,
-            IEventPublisher publisher,
+            IEventDispatcher dispatcher,
             IAggregateFactory aggregateFactory)
         {
             this.store            = store;
             this.serializer       = serializer;
-            this.publisher        = publisher;
+            this.dispatcher        = dispatcher;
             this.aggregateFactory = aggregateFactory;
         }
 
@@ -123,7 +123,7 @@ namespace Aenima
 
             foreach(var metaEvent in metaEvents) {
                 try {
-                    await this.publisher.Publish(metaEvent.Event, metaEvent.Metadata);
+                    await this.dispatcher.Publish(metaEvent.Event, metaEvent.Metadata);
                 }
                 catch(Exception ex) {
                     this.log.Warning(

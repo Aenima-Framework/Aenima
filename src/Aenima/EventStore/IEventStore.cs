@@ -25,6 +25,24 @@ namespace Aenima.EventStore
             CancellationToken cancellationToken = default(CancellationToken));
     }
 
+    public interface IEventStoreV2
+    {
+        Task AppendStream(
+            string streamId,
+            int expectedVersion,
+            IEnumerable<IEvent> events);
+
+        Task<StreamEventsPage> ReadStream(
+            string streamId,
+            int fromVersion,
+            int count,
+            StreamReadDirection direction = StreamReadDirection.Forward);
+
+        Task DeleteStream(
+            string streamId,
+            bool forever = false);
+    }
+
 
     //public static class EventStoreExtensions
     //{
@@ -35,7 +53,7 @@ namespace Aenima.EventStore
     //        IEnumerable<MetaEvent> events,
     //        CancellationToken cancellationToken = default(CancellationToken))
     //    {
-            
+
     //    }
 
     //    public static Task<MetaStreamEventsPage> ReadStream(

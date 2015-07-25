@@ -11,7 +11,7 @@ namespace Aenima.EventStore
         public readonly string Type;
         public readonly string Data;
         public readonly string Metadata;
-        public readonly DateTime StoredOn;
+        public readonly DateTime CreatedOn;
         public readonly string StreamId;
         public readonly int StreamVersion;
 
@@ -20,7 +20,7 @@ namespace Aenima.EventStore
             string type,
             string data,
             string metadata,
-            DateTime storedOn,
+            DateTime createdOn,
             string streamId,
             int streamVersion)
         {
@@ -28,7 +28,7 @@ namespace Aenima.EventStore
             Type          = type;
             Data          = data;
             Metadata      = metadata;
-            StoredOn      = storedOn;
+            CreatedOn     = createdOn;
             StreamId      = streamId;
             StreamVersion = streamVersion;
         }

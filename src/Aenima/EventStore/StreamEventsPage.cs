@@ -22,17 +22,19 @@ namespace Aenima.EventStore
         {
             var readonlyEvents = events.ToList().AsReadOnly();
 
-            StreamId = streamId;
-            FromVersion = fromVersion;
-            NextVersion = direction == StreamReadDirection.Forward
-                ? readonlyEvents.Last().StreamVersion + 1
-                : readonlyEvents.Last().StreamVersion - 1;
-            LastVersion = lastVersion;
-            IsEndOfStream = direction == StreamReadDirection.Forward
+            IsEndOfStream   = direction == StreamReadDirection.Forward
                 ? readonlyEvents.Last().StreamVersion == lastVersion
                 : readonlyEvents.Last().StreamVersion == 0;
-            Events = readonlyEvents;
-            Direction = direction;
+            StreamId        = streamId;
+            FromVersion     = fromVersion;
+            NextVersion     = IsEndOfStream 
+                ? -1 
+                : direction == StreamReadDirection.Forward
+                    ? readonlyEvents.Last().StreamVersion + 1
+                    : readonlyEvents.Last().StreamVersion - 1;
+            LastVersion     = lastVersion;
+            Events          = readonlyEvents;
+            Direction       = direction;
         }
     }
 }

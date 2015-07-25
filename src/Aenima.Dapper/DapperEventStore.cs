@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Aenima.Dapper.Extensions;
@@ -33,7 +34,7 @@ namespace Aenima.Dapper
             Guard.NullOrWhiteSpace(() => streamId);
             Guard.NullOrDefault(() => events);
 
-            // create DataTable to send as TVP
+            // create DataTable to send as a TVP
             var newStreamEventsTable = new DataTable();
 
             newStreamEventsTable.Columns.Add("Id", typeof(Guid));
@@ -43,12 +44,16 @@ namespace Aenima.Dapper
             newStreamEventsTable.Columns.Add("StreamVersion", typeof(int));
 
             newStreamEventsTable.BeginLoadData();
-            foreach(var e in events) {
+
+            var eventVersion = expectedVersion == -1 ? 0 : expectedVersion;
+
+            foreach(var e in events) {        
                 newStreamEventsTable.LoadDataRow(
                     new object[] {
-                        e.Id, e.Type, e.Data, e.Metadata, expectedVersion++
+                        e.Id, e.Type, e.Data, e.Metadata, eventVersion
                     }, 
                     LoadOption.Upsert);
+                eventVersion++;
             }
             newStreamEventsTable.EndLoadData();
 
@@ -79,9 +84,9 @@ namespace Aenima.Dapper
                 });
         }
 
-        private int GetActualVersionFromErrorMessage(string errorMessage)
+        private static int GetActualVersionFromErrorMessage(string errorMessage)
         {
-            var separatorIndex = errorMessage.IndexOf(":", StringComparison.Ordinal);
+            var separatorIndex = errorMessage.LastIndexOf(':');
 
             return int.Parse(errorMessage.Substring(separatorIndex));
         }
@@ -123,8 +128,9 @@ namespace Aenima.Dapper
                                 throw new StreamNotFoundException(streamId);
                             case 50200:
                                 throw new StreamDeletedException(streamId, fromVersion);
+                            default:
+                                throw;
                         }
-                        throw;
                     }
                 });
 

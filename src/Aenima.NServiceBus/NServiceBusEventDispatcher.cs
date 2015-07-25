@@ -5,11 +5,11 @@ using static System.String;
 
 namespace Aenima.NServiceBus
 {
-    public class NServiceBusEventPublisher : IEventPublisher
+    public class NServiceBusEventDispatcher : IEventDispatcher
     {
         private readonly IBus bus;
 
-        public NServiceBusEventPublisher(IBus bus)
+        public NServiceBusEventDispatcher(IBus bus)
         {
             this.bus = bus;
         }
