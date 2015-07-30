@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using Aenima.EventStore;
-using Aenima.System;
-using Aenima.System.Extensions;
+﻿using System;
 using Jil;
 
 namespace Aenima.Jil
@@ -10,34 +7,27 @@ namespace Aenima.Jil
     {
         private static readonly Options SerializationOptions = new Options(
             excludeNulls: true,
-            unspecifiedDateTimeKindBehavior: UnspecifiedDateTimeKindBehavior.IsUTC);
+            unspecifiedDateTimeKindBehavior: UnspecifiedDateTimeKindBehavior.IsUTC, 
+            includeInherited: true);
 
-        public NewStreamEvent ToNewStreamEvent<TEvent>(TEvent e, IDictionary<string, object> headers = null) where TEvent : class, IEvent
+        public string Serialize(object obj)
         {
-            var jsonData     = JSON.Serialize(e, SerializationOptions);
-            var jsonMetadata = headers != null
-                ? JSON.Serialize(headers, SerializationOptions)
-                : string.Empty;
-
-            var eventId = headers != null && headers.ContainsKey("Id")
-               ? headers["Id"].ToGuidOrDefault(SequentialGuid.New())
-               : SequentialGuid.New();
-
-            return new NewStreamEvent(
-                id      : eventId,
-                type    : e.GetType().Name,
-                data    : jsonData,
-                metadata: jsonMetadata);
+            return JSON.SerializeDynamic(obj, SerializationOptions);
         }
 
-        public TEvent FromStreamEvent<TEvent>(StreamEvent streamEvent, out IDictionary<string, object> headers) where TEvent : class, IEvent
+        public object Deserialize(string serialized, Type type)
         {
-            headers =
-                JSON.Deserialize<IDictionary<string, object>>(
-                    streamEvent.Metadata,
-                    SerializationOptions);
+            return JSON.Deserialize(serialized, type, SerializationOptions);
+        }
 
-            return JSON.Deserialize<TEvent>(streamEvent.Data, SerializationOptions);
+        public string Serialize<T>(T obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public T Deserialize<T>(string text)
+        {
+            throw new NotImplementedException();
         }
     }
 }

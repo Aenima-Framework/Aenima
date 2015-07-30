@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,28 +11,7 @@ namespace Aenima.EventStore
         Task AppendStream(
             string streamId,
             int expectedVersion,
-            IEnumerable<NewStreamEvent> events,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        Task<StreamEventsPage> ReadStream(
-            string streamId,
-            int fromVersion,
-            int count,
-            StreamReadDirection direction = StreamReadDirection.Forward,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        Task DeleteStream(
-            string streamId,
-            bool forever = false,
-            CancellationToken cancellationToken = default(CancellationToken));
-    }
-
-    public interface IEventStoreV2
-    {
-        Task AppendStream(
-            string streamId,
-            int expectedVersion,
-            IEnumerable<IEvent> events);
+            IEnumerable<StreamEvent> streamEvents);
 
         Task<StreamEventsPage> ReadStream(
             string streamId,
@@ -43,86 +24,67 @@ namespace Aenima.EventStore
             bool forever = false);
     }
 
+    public class StreamEvent
+    {
+        public readonly IEvent Event;
+        public readonly IDictionary<string, object> Metadata;
 
-    //public static class EventStoreExtensions
-    //{
-    //    public static Task AppendStream(
-    //        this IEventStore eventStore,
-    //        string streamId,
-    //        int expectedVersion,
-    //        IEnumerable<MetaEvent> events,
-    //        CancellationToken cancellationToken = default(CancellationToken))
-    //    {
+        public StreamEvent(IEvent e, IDictionary<string, object> metadata)
+        {
+            Event    = e;
+            Metadata = metadata ?? new Dictionary<string, object>();
+        }
+    }
 
-    //    }
-
-    //    public static Task<MetaStreamEventsPage> ReadStream(
-    //       string streamId,
-    //       int fromVersion,
-    //       int count,
-    //       StreamReadDirection direction = StreamReadDirection.Forward,
-    //       CancellationToken cancellationToken = default(CancellationToken));
-    //}
-
-    //public class MetaEvent
+    //public class StreamEvent
     //{
     //    public readonly IEvent Event;
-    //    public readonly IReadOnlyDictionary<string, object> Headers;
+    //    public readonly IReadOnlyDictionary<string, object> Metadata;
 
-    //    public MetaEvent(IEvent e, IDictionary<string, object> headers)
+    //    public StreamEvent(IEvent e, IDictionary<string, object> metadata)
     //    {
-    //        Event   = e;
-    //        Headers = new ReadOnlyDictionary<string, object>(headers);
+    //        Event = e;
+    //        Metadata = metadata == null
+    //            ? new ReadOnlyDictionary<string, object>(new Dictionary<string, object>())
+    //            : new ReadOnlyDictionary<string, object>(metadata);
     //    }
     //}
 
-    //public class MetaStreamEventsPage
-    //{
-    //    public readonly string StreamId;
-    //    public readonly int FromVersion;
-    //    public readonly int NextVersion;
-    //    public readonly int LastVersion;
-    //    public readonly bool IsEndOfStream;
-    //    public readonly IReadOnlyCollection<MetaEvent> Events;
-    //    public readonly StreamReadDirection Direction;
+    public class StreamEventsPage
+    {
+        public readonly string StreamId;
+        public readonly int FromVersion;
+        public readonly int NextVersion;
+        public readonly int LastVersion;
+        public readonly bool IsEndOfStream;
+        public readonly IReadOnlyCollection<StreamEvent> Events;
+        public readonly StreamReadDirection Direction;
 
-    //    private MetaStreamEventsPage(
-    //        string streamId,
-    //        int fromVersion,
-    //        int nextVersion,
-    //        int lastVersion,
-    //        bool isEndOfStream,
-    //        IReadOnlyCollection<MetaEvent> events,
-    //        StreamReadDirection direction)
-    //    {
-    //        StreamId      = streamId;
-    //        FromVersion   = fromVersion;
-    //        NextVersion   = nextVersion;
-    //        LastVersion   = lastVersion;
-    //        IsEndOfStream = isEndOfStream;
-    //        Events        = events;
-    //        Direction     = direction;
-    //    }
+        public StreamEventsPage(
+            string streamId,
+            int fromVersion,
+            int lastVersion,
+            IEnumerable<StreamEvent> events,
+            StreamReadDirection direction)
+        {
+            var readonlyEvents = events.ToList().AsReadOnly();
 
-    //    public static MetaStreamEventsPage Create(
-    //        string streamId,
-    //        int fromVersion,
-    //        int nextVersion,
-    //        int lastVersion,
-    //        bool isEndOfStream,
-    //        IEnumerable<MetaEvent> events,
-    //        StreamReadDirection direction)
-    //    {
-    //        var readonlyEvents = events.ToList().AsReadOnly();
+            var lastEventVersion = int.Parse(
+                readonlyEvents.Last().Metadata[EventMetadataKeys.AggregateVersion].ToString());
 
-    //        return new MetaStreamEventsPage(
-    //            streamId,
-    //            fromVersion,
-    //            nextVersion,
-    //            lastVersion,
-    //            isEndOfStream,
-    //            readonlyEvents,
-    //            direction);
-    //    }
-    //}
+            IsEndOfStream = direction == StreamReadDirection.Forward
+                ? lastEventVersion  == lastVersion
+                : lastEventVersion  == 0;
+            StreamId      = streamId;
+            FromVersion   = fromVersion;
+            NextVersion   = IsEndOfStream
+                ? -1
+                : direction == StreamReadDirection.Forward
+                    ? lastEventVersion + 1
+                    : lastEventVersion - 1;
+            LastVersion   = lastVersion;
+            Events        = readonlyEvents;
+            Direction     = direction;
+        }
+    }
 }

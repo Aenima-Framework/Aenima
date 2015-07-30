@@ -1,11 +1,25 @@
-using System.Collections.Generic;
-using Aenima.EventStore;
+using System;
 
 namespace Aenima
 {
     public interface IEventSerializer
     {
-        NewStreamEvent ToNewStreamEvent<TEvent>(TEvent e, IDictionary<string, object> headers = null) where TEvent : class, IEvent;
-        TEvent FromStreamEvent<TEvent>(StreamEvent streamEvent, out IDictionary<string, object> headers) where TEvent : class, IEvent;
+        string Serialize(object obj);
+        object Deserialize(string text, Type type);
     }
+
+
+    public static class SerializerExtensions
+    {
+        public static T DeserializeAs<T>(this IEventSerializer serializer, string text, Type declaringType)
+        {
+            return (T)serializer.Deserialize(text, declaringType);
+        }
+
+        public static T Deserialize<T>(this IEventSerializer serializer, string text)
+        {
+            return (T)serializer.Deserialize(text, typeof(T));
+        }
+    }
+
 }

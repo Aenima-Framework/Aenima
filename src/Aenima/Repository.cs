@@ -51,9 +51,9 @@ namespace Aenima
 
                     currentPage = await this.store.ReadStream(streamId, pageStart, eventCount);
 
-                    events.AddRange(
-                        currentPage.Events.Select(streamEvent =>
-                            this.serializer.FromStreamEvent<IEvent>(streamEvent)));
+                    //events.AddRange(
+                    //    currentPage.Events.Select(streamEvent =>
+                    //        this.serializer.FromStreamEvent<IEvent>(streamEvent)));
 
                     pageStart = currentPage.NextVersion;
                 }
@@ -87,51 +87,32 @@ namespace Aenima
             var streamId      = GetStreamId(aggregateType, aggregate.Id);
             var commitId      = SequentialGuid.New();
 
-            var metaEvents = aggregate
+            var streamEvents = aggregate
                .GetChanges()
                .Select((e, idx) => {
                     var eventMetadata = new Dictionary<string, object> {
-                        { EventMetadataKeys.Id              , SequentialGuid.New() },
-                        { EventMetadataKeys.Version         , aggregate.Version + idx + 1 },
-                        { EventMetadataKeys.ClrType         , e.GetType().AssemblyQualifiedName },
-                        { EventMetadataKeys.RaisedOn        , DateTime.UtcNow },
-                        { EventMetadataKeys.AggregateId     , aggregate.Id },
-                        { EventMetadataKeys.AggregateVersion, aggregate.Version },
-                        { EventMetadataKeys.AggregateClrType, aggregateType.AssemblyQualifiedName },
-                        { EventMetadataKeys.CommitId        , commitId },
+                        { EventMetadataKeys.Id                       , SequentialGuid.New() },
+                        { EventMetadataKeys.ClrType                  , e.GetType().FullName },
+                        { EventMetadataKeys.RaisedOn                 , DateTime.UtcNow },
+                        { EventMetadataKeys.AggregateId              , aggregate.Id },
+                        { EventMetadataKeys.AggregateVersion         , aggregate.Version + idx + 1 },
+                        { EventMetadataKeys.AggregateOriginalVersion , aggregate.Version },
+                        { EventMetadataKeys.AggregateClrType         , aggregateType.FullName },
+                        { EventMetadataKeys.CommitId                 , commitId },
                     };
-                    return new {
-                        Event    = e,
-                        Metadata = eventMetadata.Merge(headers)
-                    };
+                    return new StreamEvent(e, eventMetadata.Merge(headers)
+                    );
                 })
                 .ToList();
 
             try {
-
-                var newStreamEvents = metaEvents.Select(metaEvent =>
-                    this.serializer.ToNewStreamEvent(metaEvent.Event, metaEvent.Metadata));
-
                 await this.store.AppendStream(
                     streamId, 
                     aggregate.Version,
-                    newStreamEvents);
+                    streamEvents);
             }
             catch(StreamConcurrencyException ex) {
                 throw new AggregateConcurrencyException<TAggregate>(aggregate.Id, aggregate.Version, ex.ActualVersion);
-            }
-
-            foreach(var metaEvent in metaEvents) {
-                try {
-                    await this.dispatcher.Publish(metaEvent.Event, metaEvent.Metadata);
-                }
-                catch(Exception ex) {
-                    this.log.Warning(
-                        ex, 
-                        "Failed to publish {@Event} with the following metadata {@Metadata}!", 
-                        metaEvent.Event, 
-                        metaEvent.Metadata);
-                }
             }
 
             aggregate.AcceptChanges();

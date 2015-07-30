@@ -18,10 +18,20 @@ namespace Aenima.Dapper.Extensions
                     transaction: transaction);
         }
 
-        public static Task<int> ExecuteProcedure(this SqlTransaction transaction, string procedure, DynamicParameters parameters)
+        public static Task<IEnumerable<dynamic>> QueryProcedure(this SqlTransaction transaction, string procedure, DynamicParameters parameters)
         {
             return transaction.Connection
-                .ExecuteAsync(
+                .QueryAsync(
+                    procedure,
+                    parameters,
+                    commandType: CommandType.StoredProcedure,
+                    transaction: transaction);
+        }
+
+        public static Task<int> ExecuteScalar(this SqlTransaction transaction, string procedure, DynamicParameters parameters)
+        {
+            return transaction.Connection
+                .ExecuteScalarAsync<int>(
                     procedure,
                     parameters,
                     commandType: CommandType.StoredProcedure,

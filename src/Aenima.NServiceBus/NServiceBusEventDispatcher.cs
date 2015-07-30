@@ -14,7 +14,7 @@ namespace Aenima.NServiceBus
             this.bus = bus;
         }
 
-        public Task Publish<TEvent>(TEvent e, IDictionary<string, object> headers = null) where TEvent : class, IEvent
+        public Task Dispatch<T>(T e, IDictionary<string, object> headers = null) where T : class, IEvent
         {
             if(headers != null) {
                 foreach(var header in headers) {
@@ -33,6 +33,7 @@ namespace Aenima.NServiceBus
         public static string GetAenimaHeader(this IBus bus, string key)
         {
             var header = $"Aenima-{key}";
+
             return bus.CurrentMessageContext.Headers.ContainsKey(header)
                 ? bus.CurrentMessageContext.Headers[header]
                 : Empty;

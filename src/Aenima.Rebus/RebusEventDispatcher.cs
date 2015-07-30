@@ -14,7 +14,7 @@ namespace Aenima.Rebus
             this.bus = bus;
         }
 
-        public Task Publish<TEvent>(TEvent e, IDictionary<string, object> headers = null) where TEvent : class, IEvent
+        public Task Dispatch<TEvent>(TEvent e, IDictionary<string, object> headers = null) where TEvent : class, IEvent
         {
             if(headers != null) {
                 foreach(var header in headers) {

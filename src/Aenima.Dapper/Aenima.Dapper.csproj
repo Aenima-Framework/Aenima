@@ -48,6 +48,7 @@
     <Compile Include="DapperEventStore.cs" />
     <Compile Include="DapperEventStoreSettings.cs" />
     <Compile Include="Extensions\DynamicParametersExtensions.cs" />
+    <Compile Include="NewStreamEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Extensions\SqlTransationDapperExtensions.cs" />
   </ItemGroup>

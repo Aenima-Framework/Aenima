@@ -93,6 +93,14 @@
       <Project>{D99A4838-EA03-4E8B-858A-45E5189F95CD}</Project>
       <Name>Aenima.Dapper</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\Aenima.Jil\Aenima.Jil.csproj">
+      <Project>{CF94FA52-AE52-42DB-8962-DAC1C4DDEAED}</Project>
+      <Name>Aenima.Jil</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Aenima.JsonNet\Aenima.JsonNet.csproj">
+      <Project>{3D3F990B-5AB2-4A22-9A9B-3F41018B4176}</Project>
+      <Name>Aenima.JsonNet</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Aenima\Aenima.csproj">
       <Project>{408D1041-00E9-4604-BFEE-A5CEC5A1687D}</Project>
       <Name>Aenima</Name>
