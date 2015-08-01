@@ -9,7 +9,7 @@ namespace Aenima.Exceptions
     [Serializable]
     public class StreamConcurrencyException : Exception
     {
-        private const string ErrorMessageTemplate 
+        private const string ErrorMessageTemplate
             = "Expected stream '{0}' v{1}, but found v{2}! Actual stream is {3} versions {4}.";
 
         public readonly string StreamId;
@@ -24,17 +24,16 @@ namespace Aenima.Exceptions
             IReadOnlyCollection<StreamEvent> deltaEvents = null)
             : base(GenerateMessage(streamId, expectedVersion, actualVersion))
         {
-            this.StreamId        = streamId;
-            this.ExpectedVersion = expectedVersion;
-            this.ActualVersion   = actualVersion;
-            this.DeltaEvents     = deltaEvents;
+            StreamId        = streamId;
+            ExpectedVersion = expectedVersion;
+            ActualVersion   = actualVersion;
+            DeltaEvents     = deltaEvents;
         }
 
         protected StreamConcurrencyException(
             SerializationInfo info,
             StreamingContext context)
-            : base(info, context)
-        { }
+            : base(info, context) {}
 
         private static string GenerateMessage(
             string streamId,
@@ -48,7 +47,9 @@ namespace Aenima.Exceptions
                 expectedVersion,
                 actualVersion,
                 Math.Abs(deltaVersion),
-                deltaVersion > 0 ? "ahead" : "behind");
+                deltaVersion > 0
+                    ? "ahead"
+                    : "behind");
         }
     }
 }

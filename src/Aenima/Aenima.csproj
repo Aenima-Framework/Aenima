@@ -42,10 +42,9 @@
   <ItemGroup>
     <Compile Include="Aggregate.cs" />
     <Compile Include="AggregateFactory.cs" />
-    <Compile Include="Exceptions\AggregateNotFoundException.cs" />
-    <Compile Include="Exceptions\AggregateConcurrencyException.cs" />
-    <Compile Include="Exceptions\AggregateDeletedException.cs" />
     <Compile Include="EventMetadataKeys.cs" />
+    <Compile Include="EventStore\StreamEvent.cs" />
+    <Compile Include="EventStore\StreamEventsPage.cs" />
     <Compile Include="IAggregate.cs" />
     <Compile Include="IAggregateFactory.cs" />
     <Compile Include="IEvent.cs" />

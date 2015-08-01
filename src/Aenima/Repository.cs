@@ -17,19 +17,13 @@ namespace Aenima
         private const int PageSizeReadBuffer = 200;
 
         private readonly IEventStore store;
-        private readonly IEventSerializer serializer;
-        private readonly IEventDispatcher dispatcher;
         private readonly IAggregateFactory aggregateFactory;
 
         public Repository(
             IEventStore store,
-            IEventSerializer serializer,
-            IEventDispatcher dispatcher,
             IAggregateFactory aggregateFactory)
         {
             this.store            = store;
-            this.serializer       = serializer;
-            this.dispatcher        = dispatcher;
             this.aggregateFactory = aggregateFactory;
         }
 
@@ -42,7 +36,6 @@ namespace Aenima
             var pageStart  = 0;
             var events     = new List<IEvent>();
 
-            try {
                 StreamEventsPage currentPage;
                 do {
                     var eventCount = pageStart + PageSizeReadBuffer <= version
@@ -51,25 +44,16 @@ namespace Aenima
 
                     currentPage = await this.store.ReadStream(streamId, pageStart, eventCount);
 
-                    //events.AddRange(
-                    //    currentPage.Events.Select(streamEvent =>
-                    //        this.serializer.FromStreamEvent<IEvent>(streamEvent)));
+                    events.AddRange(currentPage.Events.Select(streamEvent => streamEvent.Event));
 
                     pageStart = currentPage.NextVersion;
                 }
                 while(version >= currentPage.NextVersion && !currentPage.IsEndOfStream);
-            }
-            catch(StreamNotFoundException ex) {
-                throw new AggregateNotFoundException<TAggregate>(id, ex);
-            }
-            catch(StreamDeletedException ex) {
-                throw new AggregateDeletedException<TAggregate>(id, version, ex);
-            }
 
             var aggregate = this.aggregateFactory.Create<TAggregate>(events);
 
             if(aggregate.Version != version && version < int.MaxValue) {
-                throw new AggregateConcurrencyException<TAggregate>(id, version, aggregate.Version);
+                throw new StreamConcurrencyException(streamId, version, aggregate.Version);
             }
 
             return aggregate;
@@ -91,29 +75,19 @@ namespace Aenima
                .GetChanges()
                .Select((e, idx) => {
                     var eventMetadata = new Dictionary<string, object> {
-                        { EventMetadataKeys.Id                       , SequentialGuid.New() },
-                        { EventMetadataKeys.ClrType                  , e.GetType().FullName },
-                        { EventMetadataKeys.RaisedOn                 , DateTime.UtcNow },
-                        { EventMetadataKeys.AggregateId              , aggregate.Id },
-                        { EventMetadataKeys.AggregateVersion         , aggregate.Version + idx + 1 },
-                        { EventMetadataKeys.AggregateOriginalVersion , aggregate.Version },
-                        { EventMetadataKeys.AggregateClrType         , aggregateType.FullName },
-                        { EventMetadataKeys.CommitId                 , commitId },
+                        { EventMetadataKeys.Id          , Guid.NewGuid() },
+                        { EventMetadataKeys.ClrType     , e.GetType().AssemblyQualifiedName },
+                        { EventMetadataKeys.RaisedOn    , DateTime.UtcNow },
+                        { EventMetadataKeys.AggregateId , aggregate.Id },
+                        { EventMetadataKeys.Version     , aggregate.Version + idx + 1 },
+                        { EventMetadataKeys.Owner       , aggregateType.Name },
+                        { EventMetadataKeys.CommitId    , commitId },
                     };
-                    return new StreamEvent(e, eventMetadata.Merge(headers)
-                    );
+                    return new StreamEvent(e, eventMetadata.Merge(headers));
                 })
                 .ToList();
 
-            try {
-                await this.store.AppendStream(
-                    streamId, 
-                    aggregate.Version,
-                    streamEvents);
-            }
-            catch(StreamConcurrencyException ex) {
-                throw new AggregateConcurrencyException<TAggregate>(aggregate.Id, aggregate.Version, ex.ActualVersion);
-            }
+            await this.store.AppendStream(streamId, aggregate.Version, streamEvents);
 
             aggregate.AcceptChanges();
         }

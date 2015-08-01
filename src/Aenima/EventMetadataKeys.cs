@@ -8,7 +8,7 @@ namespace Aenima
         public const string Id = "event-id";
 
         /// <summary>
-        /// The CLR type of the event.
+        /// The CLR type of the event used to deserialize it from the store.
         /// </summary>
         public const string ClrType = "event-clr-type";
 
@@ -23,19 +23,14 @@ namespace Aenima
         public const string AggregateId = "aggregate-id";
 
         /// <summary>
-        /// The version of the owner of the event before the event was generated.
-        /// </summary>
-        public const string AggregateOriginalVersion = "aggregate-original-version";
-
-        /// <summary>
         /// The version of the owner of the event after the event was generated.
         /// </summary>
-        public const string AggregateVersion = "aggregate-version";
+        public const string Version = "aggregate-version";
 
         /// <summary>
-        /// The CLR type of the owner of the event.
+        /// The type name of the owner of the event. The aggregate root that raised the event.
         /// </summary>
-        public const string AggregateClrType = "aggregate-clr-type";
+        public const string Owner = "owner";
 
         /// <summary>
         /// The command that affected the owner and therefor the origin of the event.

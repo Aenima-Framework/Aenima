@@ -31,7 +31,7 @@ namespace Aenima.JsonNet.Tests
     //        {
     //            { "Id"                , Guid.NewGuid()},
     //            { "AggregateId"       , domainEvent.AggregateId },
-    //            { "AggregateVersion"  , domainEvent.AggregateVersion },
+    //            { "Version"  , domainEvent.Version },
     //            { "RaisedOn"          , DateTime.UtcNow },
     //            { "ProcessId"         , domainEvent.ProcessId },
     //            { "DomainEventClrType", domainEvent.GetType().AssemblyQualifiedName },
@@ -74,7 +74,7 @@ namespace Aenima.JsonNet.Tests
     //        {
     //            { "Id"                , domainEvent.Id },
     //            { "AggregateId"       , domainEvent.AggregateId },
-    //            { "AggregateVersion"  , domainEvent.AggregateVersion },
+    //            { "Version"  , domainEvent.Version },
     //            { "RaisedOn"          , domainEvent.RaisedOn },
     //            { "ProcessId"         , domainEvent.ProcessId },
     //            { "DomainEventClrType", domainEvent.GetType().AssemblyQualifiedName },
@@ -113,7 +113,7 @@ namespace Aenima.JsonNet.Tests
     //        {
     //            { "Id"                , expectedResult.Id },
     //            { "AggregateId"       , expectedResult.AggregateId },
-    //            { "AggregateVersion"  , expectedResult.AggregateVersion },
+    //            { "Version"  , expectedResult.Version },
     //            { "RaisedOn"          , expectedResult.RaisedOn },
     //            { "ProcessId"         , expectedResult.ProcessId },
     //            { "DomainEventClrType", expectedResult.GetType().AssemblyQualifiedName },
@@ -126,7 +126,7 @@ namespace Aenima.JsonNet.Tests
     //            metadata: JsonConvert.SerializeObject(eventHeaders, JsonNetEventSerializer.Settings), 
     //            storedOn: DateTime.MinValue,
     //            streamId: expectedResult.AggregateId, 
-    //            streamVersion: expectedResult.AggregateVersion);
+    //            streamVersion: expectedResult.Version);
 
     //        // act
     //        var result = sut.FromStreamEvent(newStreamEvent);

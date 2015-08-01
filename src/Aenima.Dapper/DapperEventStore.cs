@@ -51,8 +51,8 @@ namespace Aenima.Dapper
             foreach(var se in streamEvents) {
                 eventVersion++;
 
-                // the event store will always try to add this headers
-                // which are mandatory for the correct behavior of the framework
+                // the event store will always try to enrich the metadata since
+                // some headers are mandatory.
                 if(!se.Metadata.ContainsKey(EventMetadataKeys.Id)) {
                     se.Metadata[EventMetadataKeys.Id] = Guid.NewGuid();
                 }
@@ -65,8 +65,8 @@ namespace Aenima.Dapper
                     se.Metadata[EventMetadataKeys.StreamId] = streamId;
                 }
 
-                if(!se.Metadata.ContainsKey(EventMetadataKeys.AggregateVersion)) {
-                    se.Metadata[EventMetadataKeys.AggregateVersion] = eventVersion;
+                if(!se.Metadata.ContainsKey(EventMetadataKeys.Version)) {
+                    se.Metadata[EventMetadataKeys.Version] = eventVersion;
                 }
 
                 if(!se.Metadata.ContainsKey(EventMetadataKeys.CommitId)) {
@@ -102,21 +102,14 @@ namespace Aenima.Dapper
                     if(actualVersion != eventVersion) {
                         throw new StreamConcurrencyException(streamId, expectedVersion, actualVersion);
                     }
+
+                    // dispatch events
+                    await dispatcher.DispatchStreamEvents(streamEvents);
                 },
                 "AppendStream")
                 .ConfigureAwait(false);
-
-            // dispatch streamEvents
-            await dispatcher.DispatchStreamEvents(streamEvents);
         }
-
-        public class StreamEventData
-        {
-            public string Data { get; set; }
-
-            public string Metadata { get; set; }
-        }
-
+        
         public async Task<StreamEventsPage> ReadStream(string streamId, int fromVersion, int count, StreamReadDirection direction = StreamReadDirection.Forward)
         {
             Guard.NullOrWhiteSpace(() => streamId);
@@ -152,7 +145,7 @@ namespace Aenima.Dapper
                 "ReadStream")
                 .ConfigureAwait(false);
 
-            // return stream streamEvents
+            // return stream page
             var streamVersion = parameters.GetReturnValue();
 
             var streamEvents = result.Select(
@@ -164,51 +157,22 @@ namespace Aenima.Dapper
                     return new StreamEvent(streamEvent, metadata);
                 }).ToList();
 
+            var lastReadEventVersion = int.Parse(
+                streamEvents.Last().Metadata[EventMetadataKeys.Version].ToString());
+
             return new StreamEventsPage(
-                streamId   : streamId,
-                fromVersion: fromVersion,
-                lastVersion: streamVersion,
-                events     : streamEvents,
-                direction  : direction);
+                streamId    : streamId,
+                fromVersion : fromVersion,
+                toVersion   : lastReadEventVersion,
+                lastVersion : streamVersion,           
+                events      : streamEvents,
+                direction   : direction);
         }
 
         public Task DeleteStream(string streamId, bool forever = false)
         {
             throw new NotImplementedException();
         }
-
-        //private async Task<TResult> WithTransaction<TResult>(
-        //    Func<SqlTransaction, Task<TResult>> operation, Action validate, string transactionName)
-        //{
-        //    using(var connection = new SqlConnection(this.settings.ConnectionString)) {
-        //        try {
-        //            await connection.OpenAsync().ConfigureAwait(false);
-        //        }
-        //        catch(Exception ex) {
-        //            throw new StorageUnavailableException(ex);
-        //        }
-
-        //        using(var transaction = connection.BeginTransaction(IsolationLevel.Serializable, transactionName)) {
-        //            try {
-        //                var result = await operation(transaction);
-        //                validate();
-        //                transaction.Commit();
-        //                return result;
-        //            }
-        //            catch(Exception ex) {
-        //                transaction.Rollback();
-
-        //                if(ex is StreamConcurrencyException
-        //                    || ex is StreamDeletedException
-        //                    || ex is StreamNotFoundException) {
-        //                    throw;
-        //                }
-
-        //                throw new StorageException(ex);
-        //            }
-        //        }
-        //    }
-        //}
 
         private async Task WithTransaction(
            Func<SqlTransaction, Task> operation, string transactionName)
@@ -241,220 +205,4 @@ namespace Aenima.Dapper
             }
         }
     }
-
-    //public static class SerializerStreamEventDataExtensions
-    //{
-    //    public static StreamEventData ToStreamEventData(this IEventSerializer serializer, StreamEvent streamEvent)
-    //    {
-    //        var eventId = streamEvent.Metadata != null && streamEvent.Metadata.ContainsKey("Id")
-    //           ? streamEvent.Metadata["Id"].ToGuid()
-    //           : SequentialGuid.New();
-
-    //        return new StreamEventData(
-    //            id: eventId,
-    //            type: streamEvent.Event.GetType().Name,
-    //            data: serializer.Serialize(streamEvent.Event),
-    //            metadata: serializer.Serialize(streamEvent.Metadata));
-    //    }
-
-    //    public static StreamEvent ToStreamEvent(this IEventSerializer serializer, StreamEventData streamEventData)
-    //    {
-    //        return new StreamEvent(
-    //            serializer.Deserialize<IEvent>(streamEventData.Data),
-    //            serializer.Deserialize<IDictionary<string, object>>(streamEventData.Metadata));
-    //    }
-
-    //}
-
-    //public sealed class DapperEventStoreOld : IEventStore
-    //{
-        
-
-    //    public async Task AppendStream(
-    //        string streamId,
-    //        int expectedVersion,
-    //        IEnumerable<NewStreamEvent> streamEvents,
-    //        CancellationToken cancellationToken = default(CancellationToken))
-    //    {
-    //        Guard.NullOrWhiteSpace(() => streamId);
-    //        Guard.NullOrDefault(() => streamEvents);
-
-    //        // create DataTable to send as a TVP
-    //        var newStreamEventsTable = new DataTable();
-
-    //        newStreamEventsTable.Columns.Add("Id", typeof(Guid));
-    //        newStreamEventsTable.Columns.Add("Type", typeof(string));
-    //        newStreamEventsTable.Columns.Add("Data", typeof(string));
-    //        newStreamEventsTable.Columns.Add("Metadata", typeof(string));
-    //        newStreamEventsTable.Columns.Add("StreamVersion", typeof(int));
-
-    //        newStreamEventsTable.BeginLoadData();
-
-    //        var eventVersion = expectedVersion == -1 ? 0 : expectedVersion;
-
-    //        foreach(var e in streamEvents) {        
-    //            newStreamEventsTable.LoadDataRow(
-    //                new object[] {
-    //                    e.Id, e.Type, e.Data, e.Metadata, eventVersion
-    //                }, 
-    //                LoadOption.Upsert);
-    //            eventVersion++;
-    //        }
-    //        newStreamEventsTable.EndLoadData();
-
-    //        // create parameters
-    //        var parameters = new DynamicParameters();
-
-    //        parameters.AddDynamicParams(new {
-    //            StreamId              = streamId,
-    //            StreamType            = "Not implemented yet.",
-    //            ExpectedStreamVersion = expectedVersion,
-    //            StreamEvents          = newStreamEventsTable.AsTableValuedParameter("StreamEvents")
-    //        });
-
-    //        // execute operation
-    //        await WithTransaction(
-    //            transactionName: "AppendStream",
-    //            operation: async transaction => {
-    //                try {
-    //                    await transaction.ExecuteProcedure("AppendStream", parameters);
-    //                }
-    //                catch(SqlException ex) {
-    //                    if(ex.Number == 50001) {
-    //                        throw new StreamConcurrencyException(streamId, expectedVersion, GetActualVersionFromErrorMessage(ex.Message));
-    //                    }
-
-    //                    throw;
-    //                }       
-    //            });
-    //    }
-
-    //    private static int GetActualVersionFromErrorMessage(string errorMessage)
-    //    {
-    //        var separatorIndex = errorMessage.LastIndexOf(':');
-
-    //        return int.Parse(errorMessage.Substring(separatorIndex));
-    //    }
-
-    //    public async Task<StreamEventsPage> ReadStream(
-    //        string streamId,
-    //        int fromVersion,
-    //        int count,
-    //        StreamReadDirection direction = StreamReadDirection.Forward,
-    //        CancellationToken cancellationToken = default(CancellationToken))
-    //    {
-    //        Guard.NullOrWhiteSpace(() => streamId);
-
-    //        // create parameters
-    //        var parameters = new DynamicParameters();
-
-    //        parameters.AddDynamicParams(new
-    //        {
-    //            StreamId    = streamId,
-    //            FromVersion = fromVersion,
-    //            Count       = count,
-    //            ReadForward = direction == StreamReadDirection.Forward ? 1 : 0
-    //        });
-
-    //        parameters.AddReturnValue();
-
-    //        IEnumerable<StreamEvent> result = new List<StreamEvent>();
-
-    //        // execute operation
-    //        await WithTransaction(
-    //            transactionName: "ReadStream", 
-    //            operation: async transaction => {
-    //                try {
-    //                    result = await transaction.QueryProcedure<StreamEvent>("ReadStream", parameters);
-    //                }
-    //                catch(SqlException ex) {
-    //                    switch(ex.Number) {
-    //                        case 50100:
-    //                            throw new StreamNotFoundException(streamId);
-    //                        case 50200:
-    //                            throw new StreamDeletedException(streamId, fromVersion);
-    //                        default:
-    //                            throw;
-    //                    }
-    //                }
-    //            });
-
-    //        var status = parameters.GetReturnValue();
-
-    //        return new StreamEventsPage(
-    //            streamId,
-    //            fromVersion,
-    //            status,
-    //            result,
-    //            direction);
-    //    }
-
-    //    public async Task DeleteStream(
-    //        string streamId,
-    //        bool forever = false,
-    //        CancellationToken cancellationToken = default(CancellationToken))
-    //    {
-    //        throw new NotImplementedException();
-
-    //        Guard.NullOrWhiteSpace(() => streamId);
-
-    //        // create parameters
-    //        var parameters = new DynamicParameters();
-
-    //        parameters.AddDynamicParams(new
-    //        {
-    //            StreamId = streamId,
-    //            Forever  = forever
-    //        });
-
-    //        parameters.AddReturnValue();
-
-    //        // execute operation
-    //        await WithTransaction(
-    //            transactionName: "DeleteStream",
-    //            operation: async transaction => {
-    //                await transaction.ExecuteProcedure("DeleteStream", parameters);
-    //            });
-
-    //        var status = parameters.GetReturnValue();
-
-    //        switch(status) {
-    //            case -100: throw new StreamNotFoundException(streamId);
-    //        }
-    //    }
-
-    //    private async Task WithTransaction(
-    //        Func<SqlTransaction, Task> operation,
-    //        IsolationLevel isolationLevel = IsolationLevel.Serializable,
-    //        string transactionName = null)
-    //    {
-    //        using(var connection = new SqlConnection(this.settings.ConnectionString)) {
-    //            try {
-    //                await connection.OpenAsync().ConfigureAwait(false);
-    //            }
-    //            catch(Exception ex) {
-    //                throw new StorageUnavailableException(ex);
-    //            }
-
-    //            using(var transaction = connection.BeginTransaction(isolationLevel, transactionName)) {
-    //                try {
-    //                    await operation(transaction);
-    //                    transaction.Commit();
-    //                }
-    //                catch(Exception ex) {
-    //                    transaction.Rollback();
-
-    //                    if(ex is StreamConcurrencyException 
-    //                    || ex is StreamDeletedException 
-    //                    || ex is StreamNotFoundException) {
-    //                        throw;
-    //                    }
-
-    //                    throw new StorageException(ex);
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //}
 }
