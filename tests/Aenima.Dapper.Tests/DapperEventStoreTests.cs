@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 using Aenima.EventStore;
-using Aenima.Jil;
 using Aenima.JsonNet;
+using Aenima.Logging;
+using Aenima.System;
 using Aenima.System.Extensions;
 using Autofac.Extras.FakeItEasy;
+using FakeItEasy;
 using FluentAssertions;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
@@ -17,7 +19,7 @@ namespace Aenima.Dapper.Tests
     [TestFixture]
     public class DapperEventStoreTests
     {
-        private static readonly AutoFake Faker = new AutoFake();
+        private static readonly AutoFake AutoFake = new AutoFake();
         private static readonly Fixture AutoFixture = new DefaultFakeItEasyFixture();
 
         private static readonly string ConnectionString =
@@ -26,11 +28,23 @@ namespace Aenima.Dapper.Tests
             Integrated Security=True;
             MultipleActiveResultSets=True;";
 
+        private TransactionScope transactionScope;
+
         [SetUp]
         public void SetUp()
         {
-            Faker.Provide(new DapperEventStoreSettings(ConnectionString));
-            Faker.Provide<IEventSerializer>(new JsonNetEventSerializer());
+            AutoFake.Provide(new DapperEventStoreSettings(ConnectionString));
+            AutoFake.Provide<IEventSerializer>(new JsonNetEventSerializer());
+            AutoFake.Provide<IEventDispatcher>(new NullEventDispatcher());
+
+            Log.Customize(type => new Fake<ILog>().FakedObject);
+        }
+
+        private async Task Transactionally(Func<Task> action)
+        {
+            using(var tran = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
+                await action();
+            }
         }
 
         [Test]
@@ -39,23 +53,32 @@ namespace Aenima.Dapper.Tests
             // arrange
             var streamId = AutoFixture.Create<string>();
 
-            var streamEvents = AutoFixture
+            var expectedStreamEvents = AutoFixture
                 .Build<StreamEvent>()
                 .FromFactory(() => new StreamEvent(
                     AutoFixture.Create<TestEventOne>(), 
                     new Dictionary<string, object> { { "Testing", true } }))
-                .CreateMany(3)
+                .CreateMany(10)
                 .ToList();
 
-            var sut = Faker.Resolve<DapperEventStore>();
+            var eventVersion     = -1;
+            var fallbackCommitId = Guid.NewGuid();
 
-            // act
-            await sut.AppendStream(streamId, -1, streamEvents);
+            foreach(var se in expectedStreamEvents) {
+                se.EnrichMetadata(streamId, eventVersion++, fallbackCommitId);
+            }
 
-            // assert
-            var result = await sut.ReadStream(streamId, 0, streamEvents.Count-1);
+            var sut = AutoFake.Resolve<DapperEventStore>();
 
-            result.Events.Should().Contain(streamEvents);
+            await sut.Initialize();
+
+            await Transactionally(async () => {
+                // act
+                await sut.AppendStream(streamId, -1, expectedStreamEvents);
+                // assert
+                var result = await sut.ReadStream(streamId, 0, expectedStreamEvents.Count);
+                result.Events.ShouldAllBeEquivalentTo(expectedStreamEvents);
+            });
         }
 
         //[TestCase(0, 3)]

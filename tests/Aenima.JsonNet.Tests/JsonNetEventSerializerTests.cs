@@ -1,143 +1,91 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Aenima.EventStore;
 using FluentAssertions;
-using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace Aenima.JsonNet.Tests
 {
-    //[TestFixture]
-    //public class JsonNetEventSerializerTests
-    //{
-    //    [Test]
-    //    public void ReturnsValidNewStreamEvent_WithoutExtraHeaders()
-    //    {
-    //        // arrange
-    //        var sut = new JsonNetEventSerializer();
-            
-    //        var domainEvent = new SomethingHappened { SomeoneDidIt = Guid.NewGuid().ToString() } as IEvent;
+    [TestFixture]
+    public class JsonNetEventSerializerTests
+    {
+        public class SerializerWorks : IEvent
+        {
+            public bool BecauseItsAwesome { get; set; }
 
-    //        domainEvent.SetMetadata(
-    //            id              : Guid.NewGuid(), 
-    //            raisedOn        : DateTime.UtcNow, 
-    //            aggregateId     : Guid.NewGuid().ToString(), 
-    //            aggregateVersion: 0);
+            public SerializerWorks Inception { get; set; }
+        }
 
-    //        var eventHeaders = new Dictionary<string, object>()
-    //        {
-    //            { "Id"                , Guid.NewGuid()},
-    //            { "AggregateId"       , domainEvent.AggregateId },
-    //            { "Version"  , domainEvent.Version },
-    //            { "RaisedOn"          , DateTime.UtcNow },
-    //            { "ProcessId"         , domainEvent.ProcessId },
-    //            { "DomainEventClrType", domainEvent.GetType().AssemblyQualifiedName },
-    //        };
+        [Test]
+        public void Serializes()
+        {
+            // arrange
+            var expectedResult 
+                = "{\"BecauseItsAwesome\":true,\"Inception\":{\"BecauseItsAwesome\":true}}";
 
-    //        var expectedResult = new NewStreamEvent(
-    //            domainEvent.Id,
-    //            "SomethingHappened",
-    //            JsonConvert.SerializeObject(domainEvent, JsonNetEventSerializer.ToNewStreamEventSerializerSettings),
-    //            JsonConvert.SerializeObject(eventHeaders, JsonNetEventSerializer.ToNewStreamEventSerializerSettings));
+            var input = new SerializerWorks
+            {
+                BecauseItsAwesome = true,
+                Inception = new SerializerWorks {
+                    BecauseItsAwesome = true
+                }
+            };
 
-    //        // act
-    //        var result = sut.ToNewStreamEvent(domainEvent);
+            var sut = new JsonNetEventSerializer();
 
-    //        // assert
-    //        result.ShouldBeEquivalentTo(expectedResult);
-    //    }
+            // act
+            var result = sut.Serialize(input);
 
-    //    [Test]
-    //    public void ReturnsValidNewStreamEvent_WithExtraHeaders()
-    //    {
-    //        // arrange
-    //        var sut = new JsonNetEventSerializer();
+            // assert
+            result.ShouldBeEquivalentTo(expectedResult);
+        }
 
-    //        var domainEvent = new SomethingHappened { SomeoneDidIt = Guid.NewGuid().ToString() } as IDomainEvent;
+        [Test]
+        public void Deserializes()
+        {
+            // arrange
+            var expectedResult = new SerializerWorks
+            {
+                BecauseItsAwesome = true,
+                Inception = new SerializerWorks {
+                    BecauseItsAwesome = true
+                }
+            };
 
-    //        domainEvent.SetMetadata(
-    //            id              : Guid.NewGuid(),
-    //            raisedOn        : DateTime.UtcNow,
-    //            aggregateId     : Guid.NewGuid().ToString(),
-    //            aggregateVersion: 0);
+            var input = "{\"BecauseItsAwesome\":true,\"Inception\":{\"BecauseItsAwesome\":true}}";
 
-    //        var extraHeaders = new Dictionary<string, object>()
-    //        {
-    //            { "CertainInfo", "Who cares?" },
-    //            { "MoarInfo"   , "No one..."},
-    //        };
+            var sut = new JsonNetEventSerializer();
+            // act
+            var result = sut.Deserialize(input, expectedResult.GetType());
 
-    //        var eventHeaders = new Dictionary<string, object>()
-    //        {
-    //            { "Id"                , domainEvent.Id },
-    //            { "AggregateId"       , domainEvent.AggregateId },
-    //            { "Version"  , domainEvent.Version },
-    //            { "RaisedOn"          , domainEvent.RaisedOn },
-    //            { "ProcessId"         , domainEvent.ProcessId },
-    //            { "DomainEventClrType", domainEvent.GetType().AssemblyQualifiedName },
-    //            { "CertainInfo"       , "Who cares?" },
-    //            { "MoarInfo"          , "No one..."},
-    //        };
+            // assert
+            result.ShouldBeEquivalentTo(expectedResult);
+        }
 
-    //        var expectedResult = new NewStreamEvent(
-    //            domainEvent.Id,
-    //            "SomethingHappened",
-    //            JsonConvert.SerializeObject(domainEvent, JsonNetEventSerializer.ToNewStreamEventSerializerSettings),
-    //            JsonConvert.SerializeObject(eventHeaders, JsonNetEventSerializer.ToNewStreamEventSerializerSettings));
+        [Test]
+        public void Serializes_And_Deserializes_Dictionary()
+        {
+            // arrange
+            var expectedResult = new Dictionary<string, object> {
+                {"MyGuid"           , Guid.NewGuid() },
+                {"MyEmptyGuid"      , Guid.Empty},
+                {"Testing"          , true},
+                {"Testing-string"   , "true"},
+                {"event-clr-type"   , "Aenima.Dapper.Tests.DapperEventStoreTests+TestEventOne, Aenima.Dapper.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"},
+                {"aggregate-version", -1},
+                {"kebas"            , null},
+                {"kebas-empty"      , string.Empty}
+            };
 
-    //        // act
-    //        var result = sut.ToNewStreamEvent(domainEvent, extraHeaders);
+            var sut = new JsonNetEventSerializer();
 
-    //        // assert
-    //        result.ShouldBeEquivalentTo(expectedResult);
-    //    }
+            // act
+            var json   = sut.Serialize(expectedResult);
 
-    //    [Test]
-    //    public void ReturnsValidDomainEvent()
-    //    {
-    //        // arrange
-    //        var sut = new JsonNetEventSerializer();
+            //json = "{ \"Testing\":true,\"event-id\":\"e83a33ec-ce52-9757-e1b9-39d22f3e4d73\",\"event-clr-type\":\"Aenima.Dapper.Tests.DapperEventStoreTests+TestEventOne, Aenima.Dapper.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\",\"stream-id\":\"0587c6bd-d4f7-4e99-a2d4-823d13b89cd5\",\"aggregate-version\":-1,\"commit-id\":\"fb41a10d-01f9-42c2-9391-e07923c98527\"}";
+            var result = sut.Deserialize(json, typeof(Dictionary<string, object>));
 
-    //        var expectedResult = new SomethingHappened { SomeoneDidIt = Guid.NewGuid().ToString() } as IDomainEvent;
-
-    //        expectedResult.SetMetadata(
-    //            id              : Guid.NewGuid(),
-    //            raisedOn        : DateTime.UtcNow,
-    //            aggregateId     : Guid.NewGuid().ToString(),
-    //            aggregateVersion: 5);
-
-    //        var eventHeaders = new Dictionary<string, object>()
-    //        {
-    //            { "Id"                , expectedResult.Id },
-    //            { "AggregateId"       , expectedResult.AggregateId },
-    //            { "Version"  , expectedResult.Version },
-    //            { "RaisedOn"          , expectedResult.RaisedOn },
-    //            { "ProcessId"         , expectedResult.ProcessId },
-    //            { "DomainEventClrType", expectedResult.GetType().AssemblyQualifiedName },
-    //        };
-
-    //        var newStreamEvent = new StreamEvent(
-    //            id: expectedResult.Id,
-    //            type: "SomethingHappened", 
-    //            data: JsonConvert.SerializeObject(expectedResult, JsonNetEventSerializer.Settings), 
-    //            metadata: JsonConvert.SerializeObject(eventHeaders, JsonNetEventSerializer.Settings), 
-    //            storedOn: DateTime.MinValue,
-    //            streamId: expectedResult.AggregateId, 
-    //            streamVersion: expectedResult.Version);
-
-    //        // act
-    //        var result = sut.FromStreamEvent(newStreamEvent);
-
-    //        // assert
-    //        result.ShouldBeEquivalentTo((SomethingHappened)expectedResult);
-    //    }
-
-    //    public class SomethingHappened : IEvent
-    //    {
-    //        public string SomeoneDidIt { get; set; }
-    //    }
-    //}
+            // assert
+            result.ShouldBeEquivalentTo(expectedResult);
+        }
+    }
 }

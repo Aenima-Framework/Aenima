@@ -17,7 +17,7 @@ namespace Aenima.Dapper
             ConnectionString = connectionString;
             TableName        = tableName.IsNullOrWhiteSpace() ? "EventStream" : tableName;
             TableSchema      = tableSchema.IsNullOrWhiteSpace() ? "dbo" : tableSchema ;
-            FullTableName    = "{0}.{1}".FormatWith(TableSchema, TableName);
+            FullTableName    = $"{TableSchema}.{TableName}";
         }
        
         public string ConnectionString { get; private set; }
@@ -27,14 +27,14 @@ namespace Aenima.Dapper
         /// <para>Default: 'dbo'</para>
         /// </summary>
         /// <value>The  table schema.</value>
-        public string TableSchema { get; private set; }
+        public string TableSchema { get; }
 
         /// <summary>
         /// Gets or sets the table name.
         /// <para>Default: 'EventStream'</para>
         /// </summary>
         /// <value>The table name.</value>
-        public string TableName { get; private set; }
+        public string TableName { get; }
 
         /// <summary>
         /// Gets or sets the full table name, including the schema.

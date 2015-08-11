@@ -1,43 +1,29 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Rebus;
-using static System.String;
+using Rebus.Bus;
+using Rebus.Extensions;
+using Rebus.Pipeline;
 
 namespace Aenima.Rebus
 {
     public class RebusEventDispatcher : IEventDispatcher
     {
-        private readonly IBus bus;
+        private readonly IBus _bus;
 
         public RebusEventDispatcher(IBus bus)
         {
-            this.bus = bus;
+            _bus = bus;
         }
 
         public Task Dispatch<TEvent>(TEvent e, IDictionary<string, object> headers = null) where TEvent : class, IEvent
         {
             if(headers != null) {
                 foreach(var header in headers) {
-                    this.bus.AttachHeader(e, $"Aenima-{header.Key}", header.Value.ToString());
+                    MessageContext.Current.Message.Headers.Add($"Aenima-{header.Key}", header.Value.ToString());
                 }
             }
 
-            this.bus.Publish(e);
-
-            return Task.FromResult(0);
-        }
-    }
-
-    public static class BusExtensions
-    {
-        public static string GetAenimaHeader(this IBus bus, string key)
-        {
-            var header     = $"Aenima-{key}";
-            var msgContext = MessageContext.GetCurrent();
-
-            return msgContext.Headers.ContainsKey(header)
-                ? msgContext.Headers[header].ToString()
-                : Empty;
+            return _bus.Publish(e);
         }
     }
 }

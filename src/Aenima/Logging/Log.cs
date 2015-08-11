@@ -4,21 +4,21 @@ namespace Aenima.Logging
 {
     public static class Log
     {
-        static Func<Type, ILog> loggerFactory;
+        static Func<Type, ILog> _loggerFactory;
 
         public static void Customize(Func<Type, ILog> factory)
         {
-            loggerFactory = factory;
+            _loggerFactory = factory;
         }
 
         public static ILog ForContext<T>()
         {
-            return loggerFactory(typeof(T));
+            return _loggerFactory(typeof(T));
         }
 
         public static ILog ForContext(Type type)
         {
-            return loggerFactory(type);
+            return _loggerFactory(type);
         } 
     }
 }

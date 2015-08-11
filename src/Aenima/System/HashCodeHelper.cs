@@ -16,9 +16,9 @@ namespace Aenima.System
         {
             return CombineHashCodes(objs as IEnumerable<object>);
 
-            unchecked {
-                return objs.Aggregate(17, (current, obj) => current * 23 + (obj?.GetHashCode() ?? 0));
-            }
+            //unchecked {
+            //    return objs.Aggregate(17, (current, obj) => current * 23 + (obj?.GetHashCode() ?? 0));
+            //}
         }
     }
 }

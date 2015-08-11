@@ -12,94 +12,98 @@ namespace Aenima
 {
     public class Repository : IRepository
     {
-        private readonly ILog log = Log.ForContext<Repository>();
+        private readonly ILog _log = Log.ForContext<Repository>();
 
-        private const int PageSizeReadBuffer = 200;
+        private const int PageSizeReadBuffer = 200; //TODO: move to configuration
 
-        private readonly IEventStore store;
-        private readonly IAggregateFactory aggregateFactory;
+        private readonly IAggregateFactory _aggregateFactory;
+        private readonly IEventStore _store;     
 
         public Repository(
             IEventStore store,
             IAggregateFactory aggregateFactory)
         {
-            this.store            = store;
-            this.aggregateFactory = aggregateFactory;
+            _store = store;
+            _aggregateFactory = aggregateFactory;
         }
 
-        public async Task<TAggregate> GetById<TAggregate>(string id, int version) 
+        public async Task<TAggregate> GetById<TAggregate>(string id, int version)
             where TAggregate : class, IAggregate, new()
         {
             Guard.NullOrWhiteSpace(() => id);
 
-            var streamId   = GetStreamId<TAggregate>(id);
-            var pageStart  = 0;
-            var events     = new List<IEvent>();
+            await _log.Debug("Loading Aggregate {@Id} of type {Type}, up to version {Version}", id, typeof(TAggregate).Name, version);
 
-                StreamEventsPage currentPage;
-                do {
-                    var eventCount = pageStart + PageSizeReadBuffer <= version
-                        ? PageSizeReadBuffer
-                        : version - pageStart + 1;
+            var streamId  = id.ToStreamId<TAggregate>();
+            var pageStart = 0;
+            var events    = new List<IEvent>();
 
-                    currentPage = await this.store.ReadStream(streamId, pageStart, eventCount);
+            StreamEventsPage currentPage;
+            do {
+                var eventCount = pageStart + PageSizeReadBuffer <= version
+                    ? PageSizeReadBuffer
+                    : version - pageStart + 1;
 
-                    events.AddRange(currentPage.Events.Select(streamEvent => streamEvent.Event));
+                currentPage = await _store
+                    .ReadStream(streamId, pageStart, eventCount)
+                    .ConfigureAwait(false);
 
-                    pageStart = currentPage.NextVersion;
-                }
-                while(version >= currentPage.NextVersion && !currentPage.IsEndOfStream);
+                events.AddRange(currentPage.Events.Select(streamEvent => streamEvent.Event));
 
-            var aggregate = this.aggregateFactory.Create<TAggregate>(events);
+                pageStart = currentPage.NextVersion;
+            } while(version >= currentPage.NextVersion && !currentPage.IsEndOfStream);
+
+            var aggregate = _aggregateFactory.Create<TAggregate>(events);
 
             if(aggregate.Version != version && version < int.MaxValue) {
                 throw new StreamConcurrencyException(streamId, version, aggregate.Version);
             }
 
+            await _log.Debug("Aggregate {Id} of type {Type} loaded up to v{Version},", id, typeof(TAggregate).Name, version);
+
             return aggregate;
         }
 
-        public async Task  Save<TAggregate>(TAggregate aggregate, IDictionary<string, object> headers = null)
+        public async Task Save<TAggregate>(TAggregate aggregate, IDictionary<string, object> headers = null)
             where TAggregate : class, IAggregate
         {
             Guard.NullOrDefault(() => aggregate);
 
-            if(!aggregate.GetChanges().Any())
-                return;
+            await _log.Debug("Saving aggregate {@Aggregate}", aggregate.ToString());
 
-            var aggregateType = typeof(TAggregate);
-            var streamId      = GetStreamId(aggregateType, aggregate.Id);
-            var commitId      = SequentialGuid.New();
+            if(!aggregate.GetChanges().Any()) {
+                return;
+            }
+
+            var commitId = SequentialGuid.New();
 
             var streamEvents = aggregate
-               .GetChanges()
-               .Select((e, idx) => {
-                    var eventMetadata = new Dictionary<string, object> {
-                        { EventMetadataKeys.Id          , Guid.NewGuid() },
-                        { EventMetadataKeys.ClrType     , e.GetType().AssemblyQualifiedName },
-                        { EventMetadataKeys.RaisedOn    , DateTime.UtcNow },
-                        { EventMetadataKeys.AggregateId , aggregate.Id },
-                        { EventMetadataKeys.Version     , aggregate.Version + idx + 1 },
-                        { EventMetadataKeys.Owner       , aggregateType.Name },
-                        { EventMetadataKeys.CommitId    , commitId },
-                    };
-                    return new StreamEvent(e, eventMetadata.Merge(headers));
-                })
+                .GetChanges()
+                .Select(
+                    (e, idx) => {
+                        var eventMetadata = new Dictionary<string, object> {
+                            {EventMetadataKeys.Id         , SequentialGuid.New()},
+                            {EventMetadataKeys.ClrType    , e.GetType().AssemblyQualifiedName},
+                            {EventMetadataKeys.RaisedOn   , DateTime.UtcNow},
+                            {EventMetadataKeys.AggregateId, aggregate.Id},
+                            {EventMetadataKeys.Version    , aggregate.Version + idx},
+                            {EventMetadataKeys.Owner      , typeof(TAggregate).Name},
+                            {EventMetadataKeys.CommitId   , commitId}
+                        };
+                        return new StreamEvent(e, eventMetadata.Merge(headers));
+                    })
                 .ToList();
 
-            await this.store.AppendStream(streamId, aggregate.Version, streamEvents);
+            await _store
+                .AppendStream(
+                    streamId       : aggregate.GetStreamId(), 
+                    expectedVersion: aggregate.Version-1, 
+                    streamEvents   : streamEvents)
+                .ConfigureAwait(false);
 
             aggregate.AcceptChanges();
-        }
 
-        private static string GetStreamId<T>(string id)
-        {
-            return GetStreamId(typeof(T), id);
-        }
-
-        private static string GetStreamId(Type type, string id)
-        {
-            return $"{type.Name}-{id}";
+            await _log.Debug("Aggregate {@Aggregate} saved", aggregate.ToString());
         }
     }
 }

@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Aenima.Jil")]
+[assembly: AssemblyTitle("Aenima.Serilog")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Aenima.Jil")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyCompany("Truphone")]
+[assembly: AssemblyProduct("Aenima.Serilog")]
+[assembly: AssemblyCopyright("Copyright © Truphone 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("cf94fa52-ae52-42db-8962-dac1c4ddeaed")]
+[assembly: Guid("613a6fc3-a3ee-4973-87dd-29795c90cff8")]
 
 // Version information for an assembly consists of the following four values:
 //

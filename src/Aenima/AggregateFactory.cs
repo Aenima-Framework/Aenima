@@ -10,11 +10,31 @@ namespace Aenima
     /// </summary>
     public class AggregateFactory : IAggregateFactory
     {
+        public static IAggregateFactory Instance = new AggregateFactory();
+
+        public TAggregate Create<TAggregate>()
+            where TAggregate : class, IAggregate
+        {
+            var aggregateType      = typeof(TAggregate);
+            var aggregateStateType = Type.GetType(aggregateType.BaseType.GenericTypeArguments[0].AssemblyQualifiedName, false);
+
+            if(aggregateStateType == null) {
+                throw new InvalidOperationException($"Failed to find state for \"{aggregateType.Name}\" aggregate.");
+            }
+
+            var state     = (IState)Activator.CreateInstance(aggregateStateType);
+            var aggregate = (TAggregate)Activator.CreateInstance(typeof(TAggregate));
+
+            aggregate.Restore(state);
+
+            return aggregate;
+        }
+
         public TAggregate Create<TAggregate>(IEnumerable<IEvent> events)
             where TAggregate : class, IAggregate
         {
             var aggregateType      = typeof(TAggregate);
-            var aggregateStateType = Type.GetType($"{aggregateType.Name}State", false);
+            var aggregateStateType = Type.GetType(aggregateType.BaseType.GenericTypeArguments[0].AssemblyQualifiedName, false);
 
             if(aggregateStateType == null) {
                 throw new InvalidOperationException($"Failed to find state for \"{aggregateType.Name}\" aggregate.");
@@ -23,7 +43,7 @@ namespace Aenima
             var state = (IState)Activator.CreateInstance(aggregateStateType);
             events.WithEach(state.Mutate);
 
-            var aggregate = (TAggregate)Activator.CreateInstance(typeof(TAggregate), state);
+            var aggregate = (TAggregate)Activator.CreateInstance(typeof(TAggregate));
             aggregate.Restore(state);
 
             return aggregate;

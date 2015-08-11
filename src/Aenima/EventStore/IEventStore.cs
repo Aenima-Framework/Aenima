@@ -19,5 +19,7 @@ namespace Aenima.EventStore
         Task DeleteStream(
             string streamId,
             bool forever = false);
+
+        Task Initialize();
     }
 }

@@ -1,43 +1,62 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Aenima.Logging;
+using Serilog;
 
-namespace Aenima.Logging
+namespace Aenima.Serilog
 {
-    /// <summary>
-    ///     Indicates the ability to log diagnostic information.
-    /// </summary>
-    /// <remarks>
-    ///     Object instances which implement this interface must be designed to be multi-thread safe.
-    /// </remarks>
-    public interface ILog
+    public class SerilogLog : ILog
     {
+        private readonly ILogger _logger;
+
+        public SerilogLog(ILogger logger)
+        {
+            _logger = logger;
+        }
+
         /// <summary>
         ///     Logs the most detailed level of diagnostic information.
         /// </summary>
         /// <param name="message">The diagnostic message to be logged.</param>
         /// <param name="values">All parameter to be formatted into the message, if any.</param>
-        Task Verbose(string message, params object[] values);
+        public Task Verbose(string message, params object[] values)
+        {
+            _logger.Verbose(message, values);
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         ///     Logs the debug-level diagnostic information.
         /// </summary>
         /// <param name="message">The diagnostic message to be logged.</param>
         /// <param name="values">All parameter to be formatted into the message, if any.</param>
-        Task Debug(string message, params object[] values);
+        public Task Debug(string message, params object[] values)
+        {
+            _logger.Debug(message, values);
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         ///     Logs important runtime diagnostic information.
         /// </summary>
         /// <param name="message">The diagnostic message to be logged.</param>
         /// <param name="values">All parameter to be formatted into the message, if any.</param>
-        Task Information(string message, params object[] values);
+        public Task Information(string message, params object[] values)
+        {
+            _logger.Information(message, values);
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         ///     Logs diagnostic issues to which attention should be paid.
         /// </summary>
         /// <param name="message">The diagnostic message to be logged.</param>
         /// <param name="values">All parameter to be formatted into the message, if any.</param>
-        Task Warning(string message, params object[] values);
+        public Task Warning(string message, params object[] values)
+        {
+            _logger.Warning(message, values);
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         ///     Logs diagnostic issues to which attention should be paid.
@@ -45,29 +64,46 @@ namespace Aenima.Logging
         /// <param name="exception">The relevant exception.</param>
         /// <param name="message">The diagnostic message to be logged.</param>
         /// <param name="values">All parameter to be formatted into the message, if any.</param>
-        Task Warning(Exception exception, string message, params object[] values);
+        public Task Warning(Exception exception, string message, params object[] values)
+        {
+            _logger.Warning(exception, message, values);
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         ///     Logs application and infrastructure-level errors.
         /// </summary>
         /// <param name="message">The diagnostic message to be logged.</param>
         /// <param name="values">All parameter to be formatted into the message, if any.</param>
-        Task Error(string message, params object[] values);
+        public Task Error(string message, params object[] values)
+        {
+            _logger.Error(message, values);
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         ///     Logs application and infrastructure-level errors.
         /// </summary>
+        /// sempre conseguiste? o Geada ajudou te?
         /// <param name="exception">The relevant exception.</param>
         /// <param name="message">The diagnostic message to be logged.</param>
         /// <param name="values">All parameter to be formatted into the message, if any.</param>
-        Task Error(Exception exception, string message, params object[] values);
+        public Task Error(Exception exception, string message, params object[] values)
+        {
+            _logger.Error(exception, message, values);
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         ///     Logs fatal errors which result in process termination.
         /// </summary>
         /// <param name="message">The diagnostic message to be logged.</param>
         /// <param name="values">All parameter to be formatted into the message, if any.</param>
-        Task Fatal(string message, params object[] values);
+        public Task Fatal(string message, params object[] values)
+        {
+            _logger.Fatal(message, values);
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         ///     Logs fatal errors which result in process termination.
@@ -75,6 +111,10 @@ namespace Aenima.Logging
         /// <param name="exception">The relevant exception.</param>
         /// <param name="message">The diagnostic message to be logged.</param>
         /// <param name="values">All parameter to be formatted into the message, if any.</param>
-        Task Fatal(Exception exception, string message, params object[] values);
+        public Task Fatal(Exception exception, string message, params object[] values)
+        {
+            _logger.Fatal(exception, message, values);
+            return Task.CompletedTask;
+        }
     }
 }

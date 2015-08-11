@@ -4,42 +4,42 @@ using Aenima.System;
 
 namespace Aenima
 {
-    public abstract class Aggregate<TState> 
+    public abstract class Aggregate<TState>
         : IAggregate, IEquatable<IAggregate>
         where TState : class, IState
     {
-        private readonly LinkedList<IEvent> changes = new LinkedList<IEvent>();
+        private readonly LinkedList<IEvent> _changes = new LinkedList<IEvent>();
 
         protected TState State;
+        public string Id => State.Id;
+        public int Version => State.Version;
 
-        public string Id => this.State.Id;
-
-        public int Version => this.State.Version;
-
-        protected void Apply(IEvent e)
-        {
-            this.changes.AddLast(e);
-            this.State.Mutate(e);
-        }
+        public TState InternalState => State;
 
         IEnumerable<IEvent> IAggregate.GetChanges()
         {
-            return this.changes;
+            return _changes;
         }
 
         void IAggregate.AcceptChanges()
         {
-            this.changes.Clear();
+            _changes.Clear();
         }
 
         void IAggregate.Restore(IState state)
         {
-            this.State = state as TState;
+            State = state as TState;
         }
 
         public virtual bool Equals(IAggregate other)
         {
             return null != other && other.GetHashCode() == GetHashCode();
+        }
+
+        protected void Apply(IEvent e)
+        {
+            _changes.AddLast(e);
+            State.Mutate(e);
         }
 
         public override int GetHashCode()
@@ -54,7 +54,7 @@ namespace Aenima
 
         public override string ToString()
         {
-            return $"{GetType().Name}-{Id} v{Version:000}";
+            return $"{Id} v{Version}";
         }
     }
 }

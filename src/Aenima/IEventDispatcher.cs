@@ -9,6 +9,14 @@ namespace Aenima
         Task Dispatch<T>(T e, IDictionary<string, object> headers = null) where T : class, IEvent;
     }
 
+    public class NullEventDispatcher : IEventDispatcher
+    {
+        public Task Dispatch<T>(T e, IDictionary<string, object> headers = null) where T : class, IEvent
+        {
+            return Task.FromResult(0);
+        }
+    }
+
     public static class EventDispatcherExtensions
     {
         public static Task DispatchStreamEvent(this IEventDispatcher dispatcher, StreamEvent streamEvent)

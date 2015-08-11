@@ -9,10 +9,10 @@ namespace Aenima.System
     /// </summary>
     public static class SequentialGuid
     {
-        public static readonly Guid ForMySQL      = New(SequentialGuidType.SequentialAsString);
-        public static readonly Guid ForPostgreSQL = New(SequentialGuidType.SequentialAsString);
-        public static readonly Guid ForOracle     = New(SequentialGuidType.SequentialAsBinary);
-        public static readonly Guid ForSqlServer  = New(SequentialGuidType.SequentialAtEnd);
+        //public static readonly Guid ForMySQL      = New(SequentialGuidType.SequentialAsString);
+        //public static readonly Guid ForPostgreSQL = New(SequentialGuidType.SequentialAsString);
+        //public static readonly Guid ForOracle     = New(SequentialGuidType.SequentialAsBinary);
+        //public static readonly Guid ForSqlServer  = New(SequentialGuidType.SequentialAtEnd);
 
         //private static readonly Func<SequentialGuidType, Guid> GuidFactory = guidType => New(guidType);
         private static readonly RNGCryptoServiceProvider Rng = new RNGCryptoServiceProvider();

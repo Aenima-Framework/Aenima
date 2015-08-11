@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Aenima.Dapper</RootNamespace>
     <AssemblyName>Aenima.Dapper</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -49,12 +49,11 @@
     <Compile Include="DapperEventStoreSettings.cs" />
     <Compile Include="Extensions\DynamicParametersExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Extensions\SqlTransationDapperExtensions.cs" />
     <Compile Include="StreamEventData.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Scripts\CreateStore.sql" />
-    <Content Include="Scripts\DropStore.sql" />
+    <EmbeddedResource Include="Scripts\CreateStore.sql" />
+    <EmbeddedResource Include="Scripts\DropStore.sql" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Aenima\Aenima.csproj">
