@@ -45,7 +45,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GuidReader.cs" />
     <Compile Include="JsonNetEventSerializer.cs" />
     <Compile Include="EventContractResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

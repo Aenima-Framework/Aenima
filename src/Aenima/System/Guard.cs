@@ -18,7 +18,25 @@ namespace Aenima.System
         }
 
         [DebuggerStepThrough]
+        public static void SmallerThan(Expression<Func<long>> reference, long threshold)
+        {
+            if(reference.Compile()() > threshold) return;
+
+            throw new ArgumentException(
+                ErrorMessages.ArgumentCannotBeSmallerThan.FormatWith(reference.GetParameterName(), threshold));
+        }
+
+        [DebuggerStepThrough]
         public static void LargerThan(Expression<Func<int>> reference, int threshold)
+        {
+            if(reference.Compile()() < threshold) return;
+
+            throw new ArgumentException(
+                ErrorMessages.ArgumentCannotBeLargerThan.FormatWith(reference.GetParameterName(), threshold));
+        }
+
+        [DebuggerStepThrough]
+        public static void LargerThan(Expression<Func<long>> reference, long threshold)
         {
             if(reference.Compile()() < threshold) return;
 

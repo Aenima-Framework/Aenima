@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Rebus.Bus;
 using Rebus.Extensions;
-using Rebus.Pipeline;
 
 namespace Aenima.Rebus
 {
@@ -15,15 +15,9 @@ namespace Aenima.Rebus
             _bus = bus;
         }
 
-        public Task Dispatch<TEvent>(TEvent e, IDictionary<string, object> headers = null) where TEvent : class, IEvent
+        public Task Dispatch<TEvent>(TEvent e, IDictionary<string, string> headers = null) where TEvent : class, IEvent
         {
-            if(headers != null) {
-                foreach(var header in headers) {
-                    MessageContext.Current.Message.Headers.Add($"Aenima-{header.Key}", header.Value.ToString());
-                }
-            }
-
-            return _bus.Publish(e);
+            return _bus.Publish(e, headers?.ToDictionary(header => $"Aenima-{header.Key}", header => header.Value));
         }
     }
 }

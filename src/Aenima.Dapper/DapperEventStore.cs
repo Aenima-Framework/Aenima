@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,6 +13,7 @@ using Aenima.Exceptions;
 using Aenima.Logging;
 using Aenima.System;
 using Dapper;
+using static System.String;
 
 // ReSharper disable PossibleMultipleEnumeration
 
@@ -26,7 +28,7 @@ namespace Aenima.Dapper
         public static void EnrichMetadata(this StreamEvent streamEvent, string streamId, int eventVersion, Guid fallbackCommitId)
         {
             if(!streamEvent.Metadata.ContainsKey(EventMetadataKeys.Id)) {
-                streamEvent.Metadata[EventMetadataKeys.Id] = SequentialGuid.New();
+                streamEvent.Metadata[EventMetadataKeys.Id] = SequentialGuid.ForSqlServer.ToString();
             }
 
             if(!streamEvent.Metadata.ContainsKey(EventMetadataKeys.ClrType)) {
@@ -38,11 +40,11 @@ namespace Aenima.Dapper
             }
 
             if(!streamEvent.Metadata.ContainsKey(EventMetadataKeys.Version)) {
-                streamEvent.Metadata[EventMetadataKeys.Version] = eventVersion;
+                streamEvent.Metadata[EventMetadataKeys.Version] = eventVersion.ToString();
             }
 
             if(!streamEvent.Metadata.ContainsKey(EventMetadataKeys.CommitId)) {
-                streamEvent.Metadata[EventMetadataKeys.CommitId] = fallbackCommitId;
+                streamEvent.Metadata[EventMetadataKeys.CommitId] = fallbackCommitId.ToString();
             }
         }
     }
@@ -87,33 +89,6 @@ namespace Aenima.Dapper
             await _log.Debug("Event Store initialized");
         }
 
-        /// <summary>
-        /// The event store will always try to enrich the metadata since
-        /// some headers are mandatory.
-        /// </summary>
-        private void EnrichMetadata(string streamId, int eventVersion, Guid fallbackCommitId, StreamEvent streamEvent)
-        {
-            if(!streamEvent.Metadata.ContainsKey(EventMetadataKeys.Id)) {
-                streamEvent.Metadata[EventMetadataKeys.Id] = SequentialGuid.New();
-            }
-
-            if(!streamEvent.Metadata.ContainsKey(EventMetadataKeys.ClrType)) {
-                streamEvent.Metadata[EventMetadataKeys.ClrType] = streamEvent.Event.GetType().AssemblyQualifiedName;
-            }
-
-            if(!streamEvent.Metadata.ContainsKey(EventMetadataKeys.StreamId)) {
-                streamEvent.Metadata[EventMetadataKeys.StreamId] = streamId;
-            }
-
-            if(!streamEvent.Metadata.ContainsKey(EventMetadataKeys.Version)) {
-                streamEvent.Metadata[EventMetadataKeys.Version] = eventVersion;
-            }
-
-            if(!streamEvent.Metadata.ContainsKey(EventMetadataKeys.CommitId)) {
-                streamEvent.Metadata[EventMetadataKeys.CommitId] = fallbackCommitId;
-            }
-        }
-
         public async Task AppendStream(string streamId, int expectedVersion, IEnumerable<StreamEvent> streamEvents)
         {
             Guard.NullOrWhiteSpace(() => streamId);
@@ -136,10 +111,8 @@ namespace Aenima.Dapper
             newStreamEventsTable.BeginLoadData();
 
             foreach(var se in streamEvents) {
+                se.EnrichMetadata(streamId, eventVersion++, fallbackCommitId);
 
-                EnrichMetadata(streamId, eventVersion++, fallbackCommitId, se);
-
-                // add the DataRow
                 newStreamEventsTable.Rows.Add(
                     se.Metadata[EventMetadataKeys.Id],
                     se.Event.GetType().Name,
@@ -232,14 +205,14 @@ namespace Aenima.Dapper
 
             var streamEvents = result.Select(
                 streamEventData => {
-                    var metadata        = _serializer.Deserialize<IDictionary<string, object>>(streamEventData.Metadata);
+                    var metadata        = _serializer.Deserialize<IDictionary<string, string>>(streamEventData.Metadata);
                     var domainEventType = Type.GetType(metadata[EventMetadataKeys.ClrType].ToString());
                     var streamEvent     = _serializer.DeserializeAs<IEvent>(streamEventData.Data, domainEventType);
                     return new StreamEvent(streamEvent, metadata);
                 }).ToList();
 
             var lastReadEventVersion = streamEvents.Any()
-                ? int.Parse(streamEvents.Last().Metadata[EventMetadataKeys.Version].ToString())
+                ? int.Parse(streamEvents.Last().Metadata[EventMetadataKeys.Version])
                 : -1;
 
             await _log.Debug("Stream {@streamId} event serialization finished", streamId);

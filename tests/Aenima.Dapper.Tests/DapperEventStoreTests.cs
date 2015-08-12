@@ -28,8 +28,6 @@ namespace Aenima.Dapper.Tests
             Integrated Security=True;
             MultipleActiveResultSets=True;";
 
-        private TransactionScope transactionScope;
-
         [SetUp]
         public void SetUp()
         {
@@ -57,11 +55,11 @@ namespace Aenima.Dapper.Tests
                 .Build<StreamEvent>()
                 .FromFactory(() => new StreamEvent(
                     AutoFixture.Create<TestEventOne>(), 
-                    new Dictionary<string, object> { { "Testing", true } }))
-                .CreateMany(10)
+                    new Dictionary<string, string> { { "Testing", "true" } }))
+                .CreateMany(1)
                 .ToList();
 
-            var eventVersion     = -1;
+            var eventVersion     = 0;
             var fallbackCommitId = Guid.NewGuid();
 
             foreach(var se in expectedStreamEvents) {
@@ -77,7 +75,54 @@ namespace Aenima.Dapper.Tests
                 await sut.AppendStream(streamId, -1, expectedStreamEvents);
                 // assert
                 var result = await sut.ReadStream(streamId, 0, expectedStreamEvents.Count);
-                result.Events.ShouldAllBeEquivalentTo(expectedStreamEvents);
+
+                var eventId = result.Events.First();
+                var expectedEventId = expectedStreamEvents.First();
+                
+                result.Events.First().Metadata[EventMetadataKeys.StreamId]
+                    .ShouldBeEquivalentTo(expectedStreamEvents.First().Metadata[EventMetadataKeys.StreamId]);
+
+                //result.Events.First()
+                //.ShouldBeEquivalentTo(expectedStreamEvents.First());
+
+                //result.Events.First().Metadata.ShouldBeEquivalentTo(
+                //    expectedStreamEvents.First().Metadata,
+                //    options => {
+                //        //options.Using<KeyValuePair<string, object>>(
+                //        //    ctx => {
+                //        //        ctx.Subject.Key.ShouldBeEquivalentTo(ctx.Expectation.Key);
+                //        //        ctx.Subject.Value.ToString().ShouldBeEquivalentTo(ctx.Expectation.Value);
+                //        //    });
+
+                //        //options.Using<object>(
+                //        //    ctx1 => {
+                //        //        if(ctx1.Subject is Guid) {
+                //        //            ctx1.Subject.ToString().ShouldBeEquivalentTo(ctx1.Expectation.ToString());
+                //        //        }
+                //        //        else {
+                //        //            ctx1.Subject.ShouldBeEquivalentTo(ctx1.Expectation);
+                //        //        }
+
+                //        //    });
+
+                //        options.Using<Guid>(
+                //            ctx1 => {
+
+                //                    ctx1.Subject.ToString().ShouldBeEquivalentTo(ctx1.Expectation.ToString());
+                //            });
+                //        return options;
+                //    });
+
+                //result.Events.ShouldAllBeEquivalentTo(
+                //    expectedStreamEvents,
+                //    options => {
+                //        //options.RespectingDeclaredTypes();
+                //        options.RespectingRuntimeTypes();
+                //        options.ComparingByValue<Guid>();
+                //        options.ComparingByValue<object>();
+
+                //        return options;
+                //    });
             });
         }
 

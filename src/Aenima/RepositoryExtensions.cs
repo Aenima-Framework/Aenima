@@ -10,7 +10,7 @@ namespace Aenima
             this IRepository repository, 
             TAggregate aggregate,
             Action<TAggregate> command, 
-            IDictionary<string, object> headers = null)
+            IDictionary<string, string> headers = null)
             where TAggregate : class, IAggregate, new()
         {
             command(aggregate);
@@ -20,7 +20,7 @@ namespace Aenima
         public static Task Create<TAggregate>(
             this IRepository repository,
             Action<TAggregate> command,
-            IDictionary<string, object> headers = null)
+            IDictionary<string, string> headers = null)
             where TAggregate : class, IAggregate, new()
         {
             return repository.Update(new TAggregate(), command, headers);
@@ -30,7 +30,7 @@ namespace Aenima
             this IRepository repository,
             string aggregateId,
             Action<TAggregate> command,
-            IDictionary<string, object> headers = null)
+            IDictionary<string, string> headers = null)
             where TAggregate : class, IAggregate, new()
         {
             var aggregate = await repository

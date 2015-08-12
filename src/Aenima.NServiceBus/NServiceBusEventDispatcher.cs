@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using NServiceBus;
+using NServiceBus.Unicast;
 
 namespace Aenima.NServiceBus
 {
@@ -13,14 +14,13 @@ namespace Aenima.NServiceBus
             _bus = bus;
         }
 
-        public Task Dispatch<T>(T e, IDictionary<string, object> headers = null) where T : class, IEvent
+        public Task Dispatch<T>(T e, IDictionary<string, string> headers = null) where T : class, IEvent
         {
             if(headers != null) {
                 foreach(var header in headers) {
-                    _bus.SetMessageHeader(e, $"Aenima-{header.Key}", header.Value.ToString());
+                    _bus.SetMessageHeader(e, $"Aenima-{header.Key}", header.Value);
                 }
             }
-
             _bus.Publish(e);
 
             return Task.CompletedTask;

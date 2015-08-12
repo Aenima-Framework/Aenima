@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Aenima.EventStore;
@@ -64,7 +65,7 @@ namespace Aenima
             return aggregate;
         }
 
-        public async Task Save<TAggregate>(TAggregate aggregate, IDictionary<string, object> headers = null)
+        public async Task Save<TAggregate>(TAggregate aggregate, IDictionary<string, string> headers = null)
             where TAggregate : class, IAggregate
         {
             Guard.NullOrDefault(() => aggregate);
@@ -75,18 +76,18 @@ namespace Aenima
                 return;
             }
 
-            var commitId = SequentialGuid.New();
+            var commitId = Guid.NewGuid().ToString();
 
             var streamEvents = aggregate
                 .GetChanges()
                 .Select(
                     (e, idx) => {
-                        var eventMetadata = new Dictionary<string, object> {
-                            {EventMetadataKeys.Id         , SequentialGuid.New()},
+                        var eventMetadata = new Dictionary<string, string> {
+                            {EventMetadataKeys.Id         , Guid.NewGuid().ToString()},
                             {EventMetadataKeys.ClrType    , e.GetType().AssemblyQualifiedName},
-                            {EventMetadataKeys.RaisedOn   , DateTime.UtcNow},
+                            {EventMetadataKeys.RaisedOn   , DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)},
                             {EventMetadataKeys.AggregateId, aggregate.Id},
-                            {EventMetadataKeys.Version    , aggregate.Version + idx},
+                            {EventMetadataKeys.Version    , (aggregate.Version + idx).ToString()},
                             {EventMetadataKeys.Owner      , typeof(TAggregate).Name},
                             {EventMetadataKeys.CommitId   , commitId}
                         };

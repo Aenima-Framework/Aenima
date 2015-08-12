@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Security.Cryptography;
 
+// ReSharper disable InconsistentNaming
+
 namespace Aenima.System
 {
     /// <summary>
@@ -9,14 +11,17 @@ namespace Aenima.System
     /// </summary>
     public static class SequentialGuid
     {
-        //public static readonly Guid ForMySQL      = New(SequentialGuidType.SequentialAsString);
-        //public static readonly Guid ForPostgreSQL = New(SequentialGuidType.SequentialAsString);
-        //public static readonly Guid ForOracle     = New(SequentialGuidType.SequentialAsBinary);
-        //public static readonly Guid ForSqlServer  = New(SequentialGuidType.SequentialAtEnd);
-
-        //private static readonly Func<SequentialGuidType, Guid> GuidFactory = guidType => New(guidType);
         private static readonly RNGCryptoServiceProvider Rng = new RNGCryptoServiceProvider();
-        public static Guid New(SequentialGuidType guidType = SequentialGuidType.SequentialAtEnd)
+
+        public static Guid ForMySQL => New(SequentialGuidType.SequentialAsString);
+
+        public static Guid ForPostgreSQL => New(SequentialGuidType.SequentialAsString);
+
+        public static Guid ForOracle => New(SequentialGuidType.SequentialAsBinary);
+
+        public static Guid ForSqlServer => New(SequentialGuidType.SequentialAtEnd);
+
+        private static Guid New(SequentialGuidType guidType)
         {
             var randomBytes = new byte[10];
 
