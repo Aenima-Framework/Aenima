@@ -8,7 +8,7 @@ namespace Aenima.JsonNet
         public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings {
             TypeNameHandling  = TypeNameHandling.None,
             NullValueHandling = NullValueHandling.Ignore,
-            ContractResolver  = EventContractResolver.Instance
+            ContractResolver  = BetterContractResolver.Instance
         };
 
         public string Serialize(object obj)

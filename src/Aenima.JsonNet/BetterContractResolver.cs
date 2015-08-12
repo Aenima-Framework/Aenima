@@ -4,27 +4,22 @@ using Newtonsoft.Json.Serialization;
 
 namespace Aenima.JsonNet
 {
-    internal class EventContractResolver : DefaultContractResolver
+    internal class BetterContractResolver : DefaultContractResolver
     {
-        public static IContractResolver Instance => new EventContractResolver();
+        public static IContractResolver Instance => new BetterContractResolver();
 
         protected override JsonProperty CreateProperty(
             MemberInfo member,
             MemberSerialization memberSerialization)
         {
             var prop = base.CreateProperty(member, memberSerialization);
-
-            if(!prop.Writable)
-            {
+            if(!prop.Writable) {
                 var property = member as PropertyInfo;
-
-                if(property != null)
-                {
+                if(property != null) {
                     var hasPrivateSetter = property.GetSetMethod(true) != null;
                     prop.Writable = hasPrivateSetter;
                 }
             }
-
             return prop;
         }
     }

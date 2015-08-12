@@ -46,7 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="JsonNetEventSerializer.cs" />
-    <Compile Include="EventContractResolver.cs" />
+    <Compile Include="BetterContractResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
