@@ -4,8 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
 using Aenima.EventStore;
+using Aenima.Jil;
 using Aenima.JsonNet;
 using Aenima.Logging;
+using Aenima.ServiceStack;
 using Aenima.System;
 using Aenima.System.Extensions;
 using Autofac.Extras.FakeItEasy;
@@ -32,7 +34,9 @@ namespace Aenima.Dapper.Tests
         public void SetUp()
         {
             AutoFake.Provide(new DapperEventStoreSettings(ConnectionString));
-            AutoFake.Provide<IEventSerializer>(new JsonNetEventSerializer());
+            //AutoFake.Provide<ISerializer>(new JsonNetSerializer());
+            //AutoFake.Provide<ISerializer>(new JilSerializer());
+            //AutoFake.Provide<ISerializer>(new ServiceStackSerializer());
             AutoFake.Provide<IEventDispatcher>(new NullEventDispatcher());
 
             Log.Customize(type => new Fake<ILog>().FakedObject);
@@ -76,53 +80,7 @@ namespace Aenima.Dapper.Tests
                 // assert
                 var result = await sut.ReadStream(streamId, 0, expectedStreamEvents.Count);
 
-                var eventId = result.Events.First();
-                var expectedEventId = expectedStreamEvents.First();
-                
-                result.Events.First().Metadata[EventMetadataKeys.StreamId]
-                    .ShouldBeEquivalentTo(expectedStreamEvents.First().Metadata[EventMetadataKeys.StreamId]);
-
-                //result.Events.First()
-                //.ShouldBeEquivalentTo(expectedStreamEvents.First());
-
-                //result.Events.First().Metadata.ShouldBeEquivalentTo(
-                //    expectedStreamEvents.First().Metadata,
-                //    options => {
-                //        //options.Using<KeyValuePair<string, object>>(
-                //        //    ctx => {
-                //        //        ctx.Subject.Key.ShouldBeEquivalentTo(ctx.Expectation.Key);
-                //        //        ctx.Subject.Value.ToString().ShouldBeEquivalentTo(ctx.Expectation.Value);
-                //        //    });
-
-                //        //options.Using<object>(
-                //        //    ctx1 => {
-                //        //        if(ctx1.Subject is Guid) {
-                //        //            ctx1.Subject.ToString().ShouldBeEquivalentTo(ctx1.Expectation.ToString());
-                //        //        }
-                //        //        else {
-                //        //            ctx1.Subject.ShouldBeEquivalentTo(ctx1.Expectation);
-                //        //        }
-
-                //        //    });
-
-                //        options.Using<Guid>(
-                //            ctx1 => {
-
-                //                    ctx1.Subject.ToString().ShouldBeEquivalentTo(ctx1.Expectation.ToString());
-                //            });
-                //        return options;
-                //    });
-
-                //result.Events.ShouldAllBeEquivalentTo(
-                //    expectedStreamEvents,
-                //    options => {
-                //        //options.RespectingDeclaredTypes();
-                //        options.RespectingRuntimeTypes();
-                //        options.ComparingByValue<Guid>();
-                //        options.ComparingByValue<object>();
-
-                //        return options;
-                //    });
+                result.Events.ShouldBeEquivalentTo(expectedStreamEvents);
             });
         }
 
@@ -172,15 +130,21 @@ namespace Aenima.Dapper.Tests
         public class TestEventOne : IEvent
         {
             public int SortOrder { get; set; }
+
+            public TestEventTwo Kebas { get; set; }
         }
 
         [Serializable]
         public class TestEventTwo : IEvent
         {
+            public TestEventTwo(string serialKey, DateTime anotherProperty)
+            {
+                SerialKey = serialKey;
+                AnotherProperty = anotherProperty;
+            }
 
-            public string SerialKey { get; set; }
-
-            public DateTime AnotherProperty { get; set; }
+            public string SerialKey { get; private set; }
+            public DateTime AnotherProperty { get; private set; }
         }
 
 
@@ -234,7 +198,7 @@ namespace Aenima.Dapper.Tests
         ////{
         ////    // arrange
         ////    var sut = new DapperEventStore(
-        ////        new JsonNetEventSerializer(),
+        ////        new JsonNetSerializer(),
         ////        new DapperEventStoreSettings(ConnectionString, "EventStream_" + DateTime.UtcNow.ToFileTime()));
 
         ////    await sut.Initialize();
@@ -283,8 +247,8 @@ namespace Aenima.Dapper.Tests
         //            .ToList());
 
         //    var serializer = binary
-        //        ? new BinarySerializer() as IEventSerializer
-        //        : new JsonNetEventSerializer();
+        //        ? new BinarySerializer() as ISerializer
+        //        : new JsonNetSerializer();
 
         //    var tableName = "EventStream_" + serializer.GetType().Name;
 
@@ -313,7 +277,7 @@ namespace Aenima.Dapper.Tests
         //{
         //    // arrange
         //    var sut = new DapperEventStore(
-        //        new JsonNetEventSerializer(),
+        //        new JsonNetSerializer(),
         //        new DapperEventStoreSettings(ConnectionString));
 
         //    await sut.Initialize();

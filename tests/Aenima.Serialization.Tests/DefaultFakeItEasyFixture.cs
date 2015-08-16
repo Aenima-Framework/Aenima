@@ -1,7 +1,7 @@
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.AutoFakeItEasy;
 
-namespace Aenima.Dapper.Tests
+namespace Aenima.Serialization.Tests
 {
     /// <summary> 
     ///     Provides anonymous object creation services by using FakeItEasy.

@@ -2,7 +2,7 @@ using System;
 
 namespace Aenima
 {
-    public interface IEventSerializer
+    public interface ISerializer
     {
         string Serialize(object obj);
         object Deserialize(string text, Type type);
@@ -11,12 +11,12 @@ namespace Aenima
 
     public static class SerializerExtensions
     {
-        public static T DeserializeAs<T>(this IEventSerializer serializer, string text, Type declaringType)
+        public static T DeserializeAs<T>(this ISerializer serializer, string text, Type declaringType)
         {
             return (T)serializer.Deserialize(text, declaringType);
         }
 
-        public static T Deserialize<T>(this IEventSerializer serializer, string text)
+        public static T Deserialize<T>(this ISerializer serializer, string text)
         {
             return (T)serializer.Deserialize(text, typeof(T));
         }

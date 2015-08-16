@@ -19,6 +19,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aenima.JsonNet.Tests", "..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aenima.Dapper.Tests", "..\tests\Aenima.Dapper.Tests\Aenima.Dapper.Tests.csproj", "{6D6C6EE7-6ECD-4461-A234-7CEAC5A3EB58}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aenima.Jil", "Aenima.Jil\Aenima.Jil.csproj", "{B42351F7-609A-4E3C-86A5-43BA406C17F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aenima.ServiceStack", "Aenima.ServiceStack\Aenima.ServiceStack.csproj", "{33AD4CC5-E4D4-42E0-B514-9C7C12B868C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aenima.Serialization.Tests", "..\tests\Aenima.Serialization.Tests\Aenima.Serialization.Tests.csproj", "{DA60B364-26D1-4AA2-A11D-DC86A475A3A6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +59,18 @@ Global
 		{6D6C6EE7-6ECD-4461-A234-7CEAC5A3EB58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D6C6EE7-6ECD-4461-A234-7CEAC5A3EB58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D6C6EE7-6ECD-4461-A234-7CEAC5A3EB58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B42351F7-609A-4E3C-86A5-43BA406C17F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B42351F7-609A-4E3C-86A5-43BA406C17F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B42351F7-609A-4E3C-86A5-43BA406C17F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B42351F7-609A-4E3C-86A5-43BA406C17F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33AD4CC5-E4D4-42E0-B514-9C7C12B868C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33AD4CC5-E4D4-42E0-B514-9C7C12B868C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33AD4CC5-E4D4-42E0-B514-9C7C12B868C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33AD4CC5-E4D4-42E0-B514-9C7C12B868C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA60B364-26D1-4AA2-A11D-DC86A475A3A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA60B364-26D1-4AA2-A11D-DC86A475A3A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA60B364-26D1-4AA2-A11D-DC86A475A3A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA60B364-26D1-4AA2-A11D-DC86A475A3A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,5 +78,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{69EB1C8A-E028-4635-AB74-553F117AA98C} = {6C054086-F4FE-482C-A089-E1913C677B80}
 		{6D6C6EE7-6ECD-4461-A234-7CEAC5A3EB58} = {6C054086-F4FE-482C-A089-E1913C677B80}
+		{DA60B364-26D1-4AA2-A11D-DC86A475A3A6} = {6C054086-F4FE-482C-A089-E1913C677B80}
 	EndGlobalSection
 EndGlobal

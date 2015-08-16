@@ -44,6 +44,7 @@
     <Compile Include="Aggregate.cs" />
     <Compile Include="AggregateExtentions.cs" />
     <Compile Include="AggregateFactory.cs" />
+    <Compile Include="EventDispatcherExtensions.cs" />
     <Compile Include="EventMetadataKeys.cs" />
     <Compile Include="EventStore\StreamEvent.cs" />
     <Compile Include="EventStore\StreamEventsPage.cs" />
@@ -51,7 +52,7 @@
     <Compile Include="IAggregateFactory.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="IEventDispatcher.cs" />
-    <Compile Include="IEventSerializer.cs" />
+    <Compile Include="ISerializer.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="IState.cs" />
     <Compile Include="Logging\ILog.cs" />

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Aenima.JsonNet
 {
-    public class JsonNetEventSerializer : IEventSerializer
+    public class JsonNetSerializer : ISerializer
     {
         public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings {
             TypeNameHandling  = TypeNameHandling.None,

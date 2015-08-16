@@ -1,7 +1,13 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Aenima.JsonNet;
+using FluentAssertions;
 using NUnit.Framework;
 
-namespace Aenima.JsonNet.Tests
+namespace Aenima.Serialization.Tests
 {
     [TestFixture]
     public class JsonNetEventSerializerTests
@@ -17,13 +23,14 @@ namespace Aenima.JsonNet.Tests
         public void Serializes()
         {
             // arrange
-            var expectedResult 
+            var expectedResult
                 = "{\"BecauseItsAwesome\":true,\"Inception\":{\"BecauseItsAwesome\":true}}";
 
             var input = new SerializerWorks
             {
                 BecauseItsAwesome = true,
-                Inception = new SerializerWorks {
+                Inception = new SerializerWorks
+                {
                     BecauseItsAwesome = true
                 }
             };
@@ -44,7 +51,8 @@ namespace Aenima.JsonNet.Tests
             var expectedResult = new SerializerWorks
             {
                 BecauseItsAwesome = true,
-                Inception = new SerializerWorks {
+                Inception = new SerializerWorks
+                {
                     BecauseItsAwesome = true
                 }
             };
