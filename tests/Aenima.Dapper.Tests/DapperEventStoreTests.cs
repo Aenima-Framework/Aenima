@@ -81,7 +81,8 @@ namespace Aenima.Dapper.Tests
 
             result.Events.ShouldBeEquivalentTo(expectedStreamEvents);
 
-            //await Transactionally(async () => {
+            //await Transactionally(async () =>
+            //{
             //    // act
             //    await sut.AppendStream(streamId, -1, expectedStreamEvents);
             //    // assert
@@ -134,7 +135,7 @@ namespace Aenima.Dapper.Tests
         }
 
         [Serializable]
-        public class TestEventOne : IEvent
+        public class TestEventOne : object
         {
             public int SortOrder { get; set; }
 
@@ -142,7 +143,7 @@ namespace Aenima.Dapper.Tests
         }
 
         [Serializable]
-        public class TestEventTwo : IEvent
+        public class TestEventTwo : object
         {
             public TestEventTwo(string serialKey, DateTime anotherProperty)
             {
@@ -312,7 +313,7 @@ namespace Aenima.Dapper.Tests
         ////[Serializable]
         ////[DataContract]
         ////[KnownType(typeof(TestEventOne))]
-        //public class TestEventOne : IEvent
+        //public class TestEventOne : object
         //{
         //    //[DataMember]
         //    public int SortOrder { get; set; }
@@ -321,7 +322,7 @@ namespace Aenima.Dapper.Tests
         ////[Serializable]
         ////[DataContract]
         ////[KnownType(typeof(TestEventTwo))]
-        //public class TestEventTwo : IEvent
+        //public class TestEventTwo : object
         //{
         //    //[DataMember]
         //    public string Key { get; set; }

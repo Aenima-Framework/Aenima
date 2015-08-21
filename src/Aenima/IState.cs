@@ -4,6 +4,6 @@
     {
         string Id { get; }
         int Version { get; }
-        void Mutate(IEvent e);
+        void Mutate(object e);
     }
 }

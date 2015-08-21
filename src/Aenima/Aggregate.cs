@@ -8,7 +8,7 @@ namespace Aenima
         : IAggregate, IEquatable<IAggregate>
         where TState : class, IState
     {
-        private readonly LinkedList<IEvent> _changes = new LinkedList<IEvent>();
+        private readonly LinkedList<object> _changes = new LinkedList<object>();
 
         protected TState State;
         public string Id => State.Id;
@@ -16,7 +16,7 @@ namespace Aenima
 
         public TState InternalState => State;
 
-        IEnumerable<IEvent> IAggregate.GetChanges()
+        IEnumerable<object> IAggregate.GetChanges()
         {
             return _changes;
         }
@@ -36,7 +36,7 @@ namespace Aenima
             return null != other && other.GetHashCode() == GetHashCode();
         }
 
-        protected void Apply(IEvent e)
+        protected void Apply(object e)
         {
             _changes.AddLast(e);
             State.Mutate(e);

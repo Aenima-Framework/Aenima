@@ -30,7 +30,7 @@ namespace Aenima
             return aggregate;
         }
 
-        public TAggregate Create<TAggregate>(IEnumerable<IEvent> events)
+        public TAggregate Create<TAggregate>(IEnumerable<object> events)
             where TAggregate : class, IAggregate
         {
             var aggregateType      = typeof(TAggregate);

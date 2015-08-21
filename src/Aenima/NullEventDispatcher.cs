@@ -5,7 +5,7 @@ namespace Aenima
 {
     public class NullEventDispatcher : IEventDispatcher
     {
-        public Task Dispatch<T>(T e, IDictionary<string, string> headers = null) where T : class, IEvent
+        public Task Dispatch<T>(T e, IDictionary<string, string> headers = null) where T : class
         {
             return Task.FromResult(0);
         }

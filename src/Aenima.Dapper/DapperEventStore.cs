@@ -207,7 +207,7 @@ namespace Aenima.Dapper
                 streamEventData => {
                     var metadata        = _serializer.Deserialize<IDictionary<string, string>>(streamEventData.Metadata);
                     var domainEventType = Type.GetType(metadata[EventMetadataKeys.ClrType].ToString());
-                    var streamEvent     = _serializer.DeserializeAs<IEvent>(streamEventData.Data, domainEventType);
+                    var streamEvent     = _serializer.DeserializeAs<object>(streamEventData.Data, domainEventType);
                     return new StreamEvent(streamEvent, metadata);
                 }).ToList();
 

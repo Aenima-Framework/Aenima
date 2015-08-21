@@ -37,7 +37,7 @@ namespace Aenima
 
             var streamId  = id.ToStreamId<TAggregate>();
             var pageStart = 0;
-            var events    = new List<IEvent>();
+            var events    = new List<object>();
 
             StreamEventsPage currentPage;
             do {

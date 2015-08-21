@@ -6,7 +6,7 @@ namespace Aenima
     {
         string Id { get; }
         int Version { get; }
-        IEnumerable<IEvent> GetChanges();
+        IEnumerable<object> GetChanges();
         void AcceptChanges();
         void Restore(IState state);
     }

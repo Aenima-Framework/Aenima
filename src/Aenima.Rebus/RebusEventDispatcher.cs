@@ -15,7 +15,7 @@ namespace Aenima.Rebus
             _bus = bus;
         }
 
-        public Task Dispatch<TEvent>(TEvent e, IDictionary<string, string> headers = null) where TEvent : class, IEvent
+        public Task Dispatch<TEvent>(TEvent e, IDictionary<string, string> headers = null) where TEvent : class
         {
             return _bus.Publish(e, headers?.ToDictionary(header => $"Aenima-{header.Key}", header => header.Value));
         }
