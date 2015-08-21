@@ -36,7 +36,7 @@ namespace Aenima.Dapper.Tests
             AutoFake.Provide(new DapperEventStoreSettings(ConnectionString));
             //AutoFake.Provide<ISerializer>(new JsonNetSerializer());
             //AutoFake.Provide<ISerializer>(new JilSerializer());
-            //AutoFake.Provide<ISerializer>(new ServiceStackSerializer());
+            AutoFake.Provide<ISerializer>(new ServiceStackSerializer());
             AutoFake.Provide<IEventDispatcher>(new NullEventDispatcher());
 
             Log.Customize(type => new Fake<ILog>().FakedObject);
@@ -74,14 +74,21 @@ namespace Aenima.Dapper.Tests
 
             await sut.Initialize();
 
-            await Transactionally(async () => {
-                // act
-                await sut.AppendStream(streamId, -1, expectedStreamEvents);
-                // assert
-                var result = await sut.ReadStream(streamId, 0, expectedStreamEvents.Count);
+            // act
+            await sut.AppendStream(streamId, -1, expectedStreamEvents);
+            // assert
+            var result = await sut.ReadStream(streamId, 0, expectedStreamEvents.Count);
 
-                result.Events.ShouldBeEquivalentTo(expectedStreamEvents);
-            });
+            result.Events.ShouldBeEquivalentTo(expectedStreamEvents);
+
+            //await Transactionally(async () => {
+            //    // act
+            //    await sut.AppendStream(streamId, -1, expectedStreamEvents);
+            //    // assert
+            //    var result = await sut.ReadStream(streamId, 0, expectedStreamEvents.Count);
+
+            //    result.Events.ShouldBeEquivalentTo(expectedStreamEvents);
+            //});
         }
 
         //[TestCase(0, 3)]

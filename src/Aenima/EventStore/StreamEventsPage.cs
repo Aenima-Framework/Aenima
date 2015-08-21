@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace Aenima.EventStore
 {
     public class StreamEventsPage

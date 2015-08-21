@@ -5,7 +5,7 @@ namespace Aenima.JsonNet
 {
     public class JsonNetSerializer : ISerializer
     {
-        public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings {
+        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings {
             TypeNameHandling  = TypeNameHandling.None,
             NullValueHandling = NullValueHandling.Ignore,
             ContractResolver  = BetterContractResolver.Instance

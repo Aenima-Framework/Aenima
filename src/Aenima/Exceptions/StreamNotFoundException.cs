@@ -7,11 +7,10 @@ namespace Aenima.Exceptions
     [Serializable]
     public class StreamNotFoundException : Exception
     {
-        private const string ErrorMessageTemplate = "Expected stream '{0}', but found nothing!";
         public readonly string StreamId;
 
         public StreamNotFoundException(string streamId)
-            : base(ErrorMessageTemplate.FormatWith(streamId))
+            : base($"Expected stream '{streamId}', but found nothing!")
         {
             StreamId = streamId;
         }
