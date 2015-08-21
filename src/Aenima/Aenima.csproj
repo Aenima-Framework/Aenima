@@ -50,14 +50,13 @@
     <Compile Include="EventStore\StreamEventsPage.cs" />
     <Compile Include="IAggregate.cs" />
     <Compile Include="IAggregateFactory.cs" />
-    <Compile Include="IEvent.cs" />
-    <Compile Include="IEventDispatcher.cs" />
+    <Compile Include="IDomainEventDispatcher.cs" />
     <Compile Include="ISerializer.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="IState.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\Log.cs" />
-    <Compile Include="NullEventDispatcher.cs" />
+    <Compile Include="NullDomainEventDispatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EventStore\IEventStore.cs" />
     <Compile Include="EventStore\StreamReadDirection.cs" />

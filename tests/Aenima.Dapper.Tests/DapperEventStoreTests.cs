@@ -37,7 +37,7 @@ namespace Aenima.Dapper.Tests
             //AutoFake.Provide<ISerializer>(new JsonNetSerializer());
             //AutoFake.Provide<ISerializer>(new JilSerializer());
             AutoFake.Provide<ISerializer>(new ServiceStackSerializer());
-            AutoFake.Provide<IEventDispatcher>(new NullEventDispatcher());
+            AutoFake.Provide<IDomainEventDispatcher>(new NullDomainEventDispatcher());
 
             Log.Customize(type => new Fake<ILog>().FakedObject);
         }

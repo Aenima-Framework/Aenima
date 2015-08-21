@@ -36,10 +36,10 @@ namespace Aenima
             return null != other && other.GetHashCode() == GetHashCode();
         }
 
-        protected void Apply(object e)
+        protected void Apply(object domainEvent)
         {
-            _changes.AddLast(e);
-            State.Mutate(e);
+            _changes.AddLast(domainEvent);
+            State.Mutate(domainEvent);
         }
 
         public override int GetHashCode()

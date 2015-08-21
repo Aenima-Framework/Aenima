@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aenima.ServiceStack", "Aeni
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aenima.Serialization.Tests", "..\tests\Aenima.Serialization.Tests\Aenima.Serialization.Tests.csproj", "{DA60B364-26D1-4AA2-A11D-DC86A475A3A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aenima.EventStore", "Aenima.EventStore\Aenima.EventStore.csproj", "{9A59AE91-451B-4FEC-8ACE-6AE831A9D295}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,10 @@ Global
 		{DA60B364-26D1-4AA2-A11D-DC86A475A3A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA60B364-26D1-4AA2-A11D-DC86A475A3A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA60B364-26D1-4AA2-A11D-DC86A475A3A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A59AE91-451B-4FEC-8ACE-6AE831A9D295}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A59AE91-451B-4FEC-8ACE-6AE831A9D295}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A59AE91-451B-4FEC-8ACE-6AE831A9D295}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A59AE91-451B-4FEC-8ACE-6AE831A9D295}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

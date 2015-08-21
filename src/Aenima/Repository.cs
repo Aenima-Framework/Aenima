@@ -81,17 +81,17 @@ namespace Aenima
             var streamEvents = aggregate
                 .GetChanges()
                 .Select(
-                    (e, idx) => {
+                    (domainEvent, idx) => {
                         var eventMetadata = new Dictionary<string, string> {
                             {EventMetadataKeys.Id         , Guid.NewGuid().ToString()},
-                            {EventMetadataKeys.ClrType    , e.GetType().AssemblyQualifiedName},
+                            {EventMetadataKeys.ClrType    , domainEvent.GetType().AssemblyQualifiedName},
                             {EventMetadataKeys.RaisedOn   , DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)},
                             {EventMetadataKeys.AggregateId, aggregate.Id},
                             {EventMetadataKeys.Version    , (aggregate.Version + idx).ToString()},
                             {EventMetadataKeys.Owner      , typeof(TAggregate).Name},
                             {EventMetadataKeys.CommitId   , commitId}
                         };
-                        return new StreamEvent(e, eventMetadata.Merge(headers));
+                        return new StreamEvent(domainEvent, eventMetadata.Merge(headers));
                     })
                 .ToList();
 

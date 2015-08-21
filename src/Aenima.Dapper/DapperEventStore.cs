@@ -54,10 +54,10 @@ namespace Aenima.Dapper
         private readonly ILog _log = Log.ForContext<DapperEventStore>();
 
         private readonly ISerializer _serializer;
-        private readonly IEventDispatcher _dispatcher;
+        private readonly IDomainEventDispatcher _dispatcher;
         private readonly DapperEventStoreSettings _settings;
 
-        public DapperEventStore(ISerializer serializer, IEventDispatcher dispatcher, DapperEventStoreSettings settings)
+        public DapperEventStore(ISerializer serializer, IDomainEventDispatcher dispatcher, DapperEventStoreSettings settings)
         {
             _serializer = serializer;
             _dispatcher = dispatcher;

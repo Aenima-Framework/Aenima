@@ -4,23 +4,23 @@ using NServiceBus;
 
 namespace Aenima.NServiceBus
 {
-    public class NServiceBusEventDispatcher : IEventDispatcher
+    public class NServiceBusDomainEventDispatcher : IDomainEventDispatcher
     {
         private readonly IBus _bus;
 
-        public NServiceBusEventDispatcher(IBus bus)
+        public NServiceBusDomainEventDispatcher(IBus bus)
         {
             _bus = bus;
         }
 
-        public Task Dispatch<T>(T e, IDictionary<string, string> headers = null) where T : class
+        public Task Dispatch<T>(T domainEvent, IDictionary<string, string> headers = null) where T : class
         {
             if(headers != null) {
                 foreach(var header in headers) {
-                    _bus.SetMessageHeader(e, $"Aenima-{header.Key}", header.Value);
+                    _bus.SetMessageHeader(domainEvent, $"Aenima-{header.Key}", header.Value);
                 }
             }
-            _bus.Publish(e);
+            _bus.Publish(domainEvent);
 
             return Task.CompletedTask;
         }

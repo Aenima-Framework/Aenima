@@ -6,10 +6,10 @@
 
         public int Version { get; protected set; } = -1;
 
-        public void Mutate(object e)
+        public void Mutate(object domainEvent)
         {
             // .NET magic to call one of the 'When' handlers with matching signature 
-            ((dynamic)this).When((dynamic)e);
+            ((dynamic)this).When((dynamic)domainEvent);
             Version++;
         }
     }

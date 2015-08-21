@@ -4,6 +4,6 @@
     {
         string Id { get; }
         int Version { get; }
-        void Mutate(object e);
+        void Mutate(object domainEvent);
     }
 }
