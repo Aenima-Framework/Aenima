@@ -107,4 +107,84 @@ namespace Aenima
             await _log.Debug("Aggregate {@Aggregate} saved", aggregate.ToString());
         }
     }
+
+
+    public class SnapshotRepository : IRepository
+    {
+        public Task<TAggregate> GetById<TAggregate>(string identity, int version) where TAggregate : class, IAggregate, new()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Save<T>(T aggregate, IDictionary<string, string> headers = null) where T : class, IAggregate
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public enum ReadDirection
+    {
+        /// <summary>
+        /// From beginning to end.
+        /// </summary>
+        Forward,
+        /// <summary>
+        /// From end to beginning.
+        /// </summary>
+        Backward
+    }
+
+    public interface ISnapshotStore
+    {
+        Task AddSnapshot(
+            string aggregateId,
+            long expectedVersion,
+            object state,
+            IDictionary<string, string> metadata);
+
+        Task UpdateSnapshot(
+            string aggregateId,
+            long expectedVersion,
+            object state,
+            IDictionary<string, string> metadata);
+
+        Task<Snapshot> GetSnapshot(string aggregateId, long version);
+
+        Task<Snapshot> GetLatestSnapshot(string aggregateId);
+
+        Task<Snapshot> GetAllSnapshots(
+            string aggregateId,
+            long fromVersion,
+            int count,
+            ReadDirection direction);
+
+        Task DeleteSnapshot(string aggregateId, long version);
+
+        Task DeleteAllSnapshots(string aggregateId, long fromVersion, long toVersion);
+
+        Task Initialize();
+    }
+
+    public static class SnapshotStoreExtensions
+    {
+    //    public static Task AddSnapshot(this ISnapshotStore store, Snapshot snapshot)
+    //    {
+    //        return store.AddSnapshot(
+    //            snapshot.AggregateState.Id, 
+    //            snapshot.AggregateState.Version, 
+    //            snapshot.Metadata);
+    //    }
+    }
+
+    public class Snapshot
+    {
+        public readonly object State;
+        public readonly IDictionary<string, string> Metadata;
+
+        public Snapshot(object state, IDictionary<string, string> metadata)
+        {
+            State    = state;
+            Metadata = metadata ?? new Dictionary<string, string>();
+        }
+    }
 }
