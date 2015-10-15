@@ -42,14 +42,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Aggregate.cs" />
-    <Compile Include="AggregateExtentions.cs" />
+    <Compile Include="AggregateExtensions.cs" />
     <Compile Include="AggregateFactory.cs" />
     <Compile Include="EventDispatcherExtensions.cs" />
     <Compile Include="EventMetadataKeys.cs" />
     <Compile Include="EventStore\StreamEvent.cs" />
     <Compile Include="EventStore\StreamEventsPage.cs" />
     <Compile Include="IAggregate.cs" />
-    <Compile Include="IAggregateFactory.cs" />
     <Compile Include="IDomainEventDispatcher.cs" />
     <Compile Include="ISerializer.cs" />
     <Compile Include="IRepository.cs" />

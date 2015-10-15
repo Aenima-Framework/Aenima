@@ -17,15 +17,11 @@ namespace Aenima
 
         private const int PageSizeReadBuffer = 200; //TODO: move to configuration
 
-        private readonly IAggregateFactory _aggregateFactory;
         private readonly IEventStore _store;     
 
-        public Repository(
-            IEventStore store,
-            IAggregateFactory aggregateFactory)
+        public Repository(IEventStore store)
         {
             _store = store;
-            _aggregateFactory = aggregateFactory;
         }
 
         public async Task<TAggregate> GetById<TAggregate>(string id, int version)
@@ -54,7 +50,7 @@ namespace Aenima
                 pageStart = currentPage.NextVersion;
             } while(version >= currentPage.NextVersion && !currentPage.IsEndOfStream);
 
-            var aggregate = _aggregateFactory.Create<TAggregate>(events);
+            var aggregate = AggregateFactory.Create<TAggregate>(events);
 
             if(aggregate.Version != version && version < int.MaxValue) {
                 throw new StreamConcurrencyException(streamId, version, aggregate.Version);

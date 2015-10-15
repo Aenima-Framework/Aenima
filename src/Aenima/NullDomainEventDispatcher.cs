@@ -7,7 +7,7 @@ namespace Aenima
     {
         public Task Dispatch<T>(T domainEvent, IDictionary<string, string> headers = null) where T : class
         {
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
     }
 }

@@ -8,6 +8,6 @@ namespace Aenima
         int Version { get; }
         IEnumerable<object> GetChanges();
         void AcceptChanges();
-        void Restore(IState state);
+        void Restore(IEnumerable<object> domainEvents);
     }
 }

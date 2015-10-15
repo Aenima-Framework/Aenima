@@ -1,6 +1,6 @@
 namespace Aenima
 {
-    public static class AggregateExtentions
+    public static class AggregateExtensions
     {
         public static string GetStreamId(this IAggregate aggregate)
         {
