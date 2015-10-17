@@ -4,7 +4,7 @@ using Aenima.EventStore;
 
 namespace Aenima
 {
-    public static class EventDispatcherExtensions
+    public static class DomainEventDispatcherExtensions
     {
         public static Task DispatchStreamEvent(this IDomainEventDispatcher dispatcher, StreamEvent streamEvent)
         {

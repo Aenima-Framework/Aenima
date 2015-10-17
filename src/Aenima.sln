@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aenima.EventStore", "Aenima
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aenima.Tests", "..\tests\Aenima.Tests\Aenima.Tests.csproj", "{277ACC76-2E5B-4E33-8BA5-51E9AD280F1B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aenima.RavenDB", "Aenima.RavenDB\Aenima.RavenDB.csproj", "{337CF780-CD54-4C56-AD87-A5FF58069CCF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,10 @@ Global
 		{277ACC76-2E5B-4E33-8BA5-51E9AD280F1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{277ACC76-2E5B-4E33-8BA5-51E9AD280F1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{277ACC76-2E5B-4E33-8BA5-51E9AD280F1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{337CF780-CD54-4C56-AD87-A5FF58069CCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{337CF780-CD54-4C56-AD87-A5FF58069CCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{337CF780-CD54-4C56-AD87-A5FF58069CCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{337CF780-CD54-4C56-AD87-A5FF58069CCF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
