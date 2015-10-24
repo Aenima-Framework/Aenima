@@ -77,6 +77,9 @@
     <Compile Include="SerializerExtensions.cs" />
     <Compile Include="State.cs" />
     <Compile Include="StringExtensions.cs" />
+    <Compile Include="System\EqualityHelper.cs" />
+    <Compile Include="System\Extensions\AppDomainExtensions.cs" />
+    <Compile Include="System\Extensions\AssemblyExtensions.cs" />
     <Compile Include="System\Extensions\DictionaryExtensions.cs" />
     <Compile Include="System\Extensions\EnumerableExtensions.cs" />
     <Compile Include="System\Extensions\ExpressionExtensions.cs" />
