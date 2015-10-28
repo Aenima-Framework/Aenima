@@ -129,30 +129,10 @@ namespace Aenima.Tests
 
     public class InProcQueryServiceSpecs
     {
-        AutoFake AutoFake = new AutoFake();
+        readonly AutoFake AutoFake = new AutoFake();
 
         [Fact]
         public async Task Runs_Query()
-        {
-            // arrange
-            var expected = 4;
-
-            A.CallTo(() => AutoFake
-                .Resolve<IDependencyResolver>()
-                .Resolve<IQueryHandler<SimpleQuery, int>>())
-                .Returns(new SimpleQueryHandler());
-
-            var queryService = AutoFake.Resolve<QueryService>();
-
-            // act
-            var result = await queryService.Run<SimpleQuery, int>(new SimpleQuery {ReturnValue = expected});
-
-            // assert
-            result.ShouldBeEquivalentTo(expected);
-        }
-
-        [Fact]
-        public async Task Runs_Query3()
         {
             // arrange
 
@@ -171,8 +151,7 @@ namespace Aenima.Tests
 
             // register query service
             builder
-                .RegisterType<QueryService>()
-                .As<IQueryService>()
+                .RegisterType<InProcQueryService>()
                 .AsSelf()
                 .SingleInstance();
 
@@ -180,14 +159,7 @@ namespace Aenima.Tests
 
             var expected = 4;
 
-            //A.CallTo(() => AutoFake
-            //    .Resolve<IDependencyResolver>()
-            //    .Resolve<IQueryHandler<SimpleQuery, int>>())
-            //    .Returns(new SimpleQueryHandler());
-
-            //var queryService = AutoFake.Resolve<QueryService>();
-
-            var queryService = container.Resolve<QueryService>();
+            var queryService = container.Resolve<InProcQueryService>();
 
             // act
             var result = await queryService.Run(new SimpleQuery { ReturnValue = expected });
@@ -197,29 +169,56 @@ namespace Aenima.Tests
         }
 
         [Fact]
-        public async Task Runs_Query_2()
+        public async Task Runs_query_and_returns_simple_type()
         {
-            //// arrange
-            //var expected = 4;
+            // arrange
+            var expected = 4;
 
-            //var query = new MoarSimpleQuery
-            //{
-            //    ReturnValue = expected
-            //};
+            var query = new SimpleQuery {
+                ReturnValue = expected
+            };
 
-            //var handlerType = typeof(IMoarQueryHandler<,>).MakeGenericType(query.GetType(), expected.GetType());
+            var handlerType = typeof(IQueryHandler<,>).MakeGenericType(query.GetType(), expected.GetType());
 
-            //A.CallTo(() => AutoFake.Resolve<IDependencyResolver>()
-            //    .Resolve(handlerType))
-            //    .Returns(new MoarSimpleQueryHandler());
+            A.CallTo(() => AutoFake
+                .Resolve<IDependencyResolver>()
+                .Resolve(handlerType))
+                .Returns(new SimpleQueryHandler());
 
-            //var queryService = AutoFake.Resolve<QueryService>();
+            var queryService = AutoFake.Resolve<InProcQueryService>();
 
-            //// act
-            //var result = await queryService.Run(new MoarSimpleQuery { ReturnValue = expected });
+            // act
+            var result = await queryService.Run(query);
 
-            //// assert
-            //result.ShouldBeEquivalentTo(expected);
+            // assert
+            result.ShouldBeEquivalentTo(expected);
+        }
+
+        [Fact]
+        public async Task Runs_query_and_returns_complex_type()
+        {
+            // arrange
+            var expected = new Complex { ReturnValue = 5 };
+
+            var query = new ComplexQuery
+            {
+                ReturnValue = expected.ReturnValue
+            };
+
+            var handlerType = typeof(IQueryHandler<,>).MakeGenericType(query.GetType(), expected.GetType());
+
+            A.CallTo(() => AutoFake
+                .Resolve<IDependencyResolver>()
+                .Resolve(handlerType))
+                .Returns(new ComplexQueryHandler());
+
+            var queryService = AutoFake.Resolve<InProcQueryService>();
+
+            // act
+            var result = await queryService.Run(query);
+
+            // assert
+            result.ShouldBeEquivalentTo(expected);
         }
 
         public class SimpleQuery : IQuery<int>
@@ -232,6 +231,22 @@ namespace Aenima.Tests
             public Task<int> Handle(SimpleQuery query, CancellationToken cancellationToken)
             {
                 return Task.FromResult(query.ReturnValue);
+            }
+        }
+
+        public class Complex
+        {
+            public int ReturnValue { get; set; }
+        }
+        public class ComplexQuery : IQuery<Complex>
+        {
+            public int ReturnValue { get; set; }
+        }
+        public class ComplexQueryHandler : IQueryHandler<ComplexQuery, Complex>
+        {
+            public Task<Complex> Handle(ComplexQuery query, CancellationToken cancellationToken)
+            {
+                return Task.FromResult(new Complex { ReturnValue = query.ReturnValue});
             }
         }
     }
