@@ -27,7 +27,8 @@ namespace Aenima
         public async Task<TAggregate> GetById<TAggregate>(string id, int version)
             where TAggregate : class, IAggregate, new()
         {
-            Guard.NullOrWhiteSpace(() => id);
+            Block.NullOrWhiteSpace(() => id);
+            Block.SmallerThan(() => version, 0);
 
             await _log.Debug("Loading Aggregate {@Id} of type {Type}, up to version {Version}", id, typeof(TAggregate).Name, version);
 
@@ -64,11 +65,12 @@ namespace Aenima
         public async Task Save<TAggregate>(TAggregate aggregate, IDictionary<string, string> headers = null)
             where TAggregate : class, IAggregate
         {
-            Guard.NullOrDefault(() => aggregate);
+            Block.Null(() => aggregate);
 
             await _log.Debug("Saving aggregate {@Aggregate}", aggregate.ToString());
 
             if(!aggregate.GetChanges().Any()) {
+                await _log.Debug("Aggregate {@Aggregate} has no changes. Skipping...", aggregate.ToString());
                 return;
             }
 

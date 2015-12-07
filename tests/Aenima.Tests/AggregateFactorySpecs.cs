@@ -225,7 +225,6 @@ namespace Aenima.Tests
         {
             public int ReturnValue { get; set; }
         }
-
         public class SimpleQueryHandler : IQueryHandler<SimpleQuery, int>
         {
             public Task<int> Handle(SimpleQuery query, CancellationToken cancellationToken)
@@ -233,7 +232,6 @@ namespace Aenima.Tests
                 return Task.FromResult(query.ReturnValue);
             }
         }
-
         public class Complex
         {
             public int ReturnValue { get; set; }

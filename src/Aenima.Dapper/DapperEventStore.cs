@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -57,7 +56,10 @@ namespace Aenima.Dapper
         private readonly IDomainEventDispatcher _dispatcher;
         private readonly DapperEventStoreSettings _settings;
 
-        public DapperEventStore(ISerializer serializer, IDomainEventDispatcher dispatcher, DapperEventStoreSettings settings)
+        public DapperEventStore(
+            ISerializer serializer, 
+            IDomainEventDispatcher dispatcher, 
+            DapperEventStoreSettings settings)
         {
             _serializer = serializer;
             _dispatcher = dispatcher;
@@ -91,8 +93,8 @@ namespace Aenima.Dapper
 
         public async Task AppendStream(string streamId, int expectedVersion, IEnumerable<StreamEvent> streamEvents)
         {
-            Guard.NullOrWhiteSpace(() => streamId);
-            Guard.NullOrDefault(() => streamEvents);
+            Block.NullOrWhiteSpace(() => streamId);
+            Block.Default(() => streamEvents);
 
             await _log.Debug("Appending stream {@streamId} with {@events}", streamId, streamEvents.ToArray());
 
@@ -157,7 +159,7 @@ namespace Aenima.Dapper
         
         public async Task<StreamEventsPage> ReadStream(string streamId, int fromVersion, int count, StreamReadDirection direction = StreamReadDirection.Forward)
         {
-            Guard.NullOrWhiteSpace(() => streamId);
+            Block.NullOrWhiteSpace(() => streamId);
 
             await _log.Debug("Reading stream {@streamId} from version {fromVersion} to version {count}", streamId, fromVersion, count);
 

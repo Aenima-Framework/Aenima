@@ -31,11 +31,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Raven.Abstractions, Version=3.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
-      <HintPath>..\packages\RavenDB.Client.3.0.3800\lib\net45\Raven.Abstractions.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Client.3.0.30000\lib\net45\Raven.Abstractions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Raven.Client.Lightweight, Version=3.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
-      <HintPath>..\packages\RavenDB.Client.3.0.3800\lib\net45\Raven.Client.Lightweight.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Client.3.0.30000\lib\net45\Raven.Client.Lightweight.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -53,13 +53,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Aenima\Aenima.csproj">
       <Project>{408D1041-00E9-4604-BFEE-A5CEC5A1687D}</Project>
       <Name>Aenima</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

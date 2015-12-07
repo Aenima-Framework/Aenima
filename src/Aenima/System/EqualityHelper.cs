@@ -3,7 +3,9 @@ using System.Collections.Generic;
 
 namespace Aenima.System
 {
-    /// <summary>A static class that exposes methods for creating generic comparers.</summary>
+    /// <summary>
+    ///     A static class that exposes methods for creating generic comparers.
+    /// </summary>
     public static class EqualityHelper<T>
     {
         public static IEqualityComparer<T> CreateComparer<TV>(Func<T, TV> keySelector)
@@ -23,12 +25,10 @@ namespace Aenima.System
 
             public KeyEqualityComparer(Func<T, TV> keySelector, IEqualityComparer<TV> comparer)
             {
-                if(keySelector == null) {
-                    throw new ArgumentNullException(nameof(keySelector));
-                }
+                Block.Null(() => keySelector);
 
                 _keySelector = keySelector;
-                _comparer = comparer ?? EqualityComparer<TV>.Default;
+                _comparer    = comparer ?? EqualityComparer<TV>.Default;
             }
 
             public bool Equals(T x, T y)

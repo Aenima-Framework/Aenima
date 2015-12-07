@@ -30,8 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EventStore.ClientAPI, Version=3.0.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\EventStore.Client.3.0.2\lib\net40\EventStore.ClientAPI.dll</HintPath>
+    <Reference Include="EventStore.ClientAPI, Version=3.3.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\EventStore.Client.3.3.1\lib\net40\EventStore.ClientAPI.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -48,13 +48,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Aenima\Aenima.csproj">
       <Project>{408D1041-00E9-4604-BFEE-A5CEC5A1687D}</Project>
       <Name>Aenima</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

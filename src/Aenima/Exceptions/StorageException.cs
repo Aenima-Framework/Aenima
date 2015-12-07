@@ -9,7 +9,7 @@ namespace Aenima.Exceptions
     [Serializable]
     public class StorageException : Exception
     {
-        private const string ErrorMessage = "Failed to execute operation to the event store!";
+        private const string ErrorMessage = "Failed to execute operation!";
 
         public StorageException(Exception innerException)
             : base(ErrorMessage, innerException) {}

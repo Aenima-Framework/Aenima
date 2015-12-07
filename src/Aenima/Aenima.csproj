@@ -78,15 +78,14 @@
     <Compile Include="State.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="System\EqualityHelper.cs" />
-    <Compile Include="System\Extensions\AppDomainExtensions.cs" />
-    <Compile Include="System\Extensions\AssemblyExtensions.cs" />
     <Compile Include="System\Extensions\DictionaryExtensions.cs" />
     <Compile Include="System\Extensions\EnumerableExtensions.cs" />
     <Compile Include="System\Extensions\ExpressionExtensions.cs" />
     <Compile Include="System\Extensions\GenericExtensions.cs" />
     <Compile Include="System\Extensions\ObjectExtensions.cs" />
+    <Compile Include="System\ScannerDarkly.cs" />
     <Compile Include="System\Extensions\StringExtensions.cs" />
-    <Compile Include="System\Guard.cs" />
+    <Compile Include="System\Block.cs" />
     <Compile Include="System\HashCodeHelper.cs" />
     <Compile Include="System\SequentialGuidGenerator.cs" />
   </ItemGroup>

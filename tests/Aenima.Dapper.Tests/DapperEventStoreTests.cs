@@ -52,6 +52,8 @@ namespace Aenima.Dapper.Tests
         [Test]
         public async Task AppendStream_CreatesStreamAndAppendsEvents_WhenStreamDoesNotExist()
         {
+
+
             // arrange
             var streamId = AutoFixture.Create<string>();
 

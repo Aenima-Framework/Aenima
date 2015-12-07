@@ -13,13 +13,10 @@ namespace Aenima.System
     {
         private static readonly RNGCryptoServiceProvider Rng = new RNGCryptoServiceProvider();
 
-        public static Guid ForMySQL => New(SequentialGuidType.SequentialAsString);
-
+        public static Guid ForMySQL      => New(SequentialGuidType.SequentialAsString);
         public static Guid ForPostgreSQL => New(SequentialGuidType.SequentialAsString);
-
-        public static Guid ForOracle => New(SequentialGuidType.SequentialAsBinary);
-
-        public static Guid ForSqlServer => New(SequentialGuidType.SequentialAtEnd);
+        public static Guid ForOracle     => New(SequentialGuidType.SequentialAsBinary);
+        public static Guid ForSqlServer  => New(SequentialGuidType.SequentialAtEnd);
 
         private static Guid New(SequentialGuidType guidType)
         {

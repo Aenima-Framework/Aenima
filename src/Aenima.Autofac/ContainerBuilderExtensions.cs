@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Aenima.System.Extensions;
+using System.Reflection;
+using System.Web.Compilation;
 using Autofac;
 using Autofac.Builder;
 using Autofac.Core;
@@ -11,50 +12,18 @@ namespace Aenima.Autofac
 {
     public static class ContainerBuilderExtensions
     {
-        /// <summary>
-        /// A ContainerBuilder extension method that scans all the application current domain assemblies,
-        /// and registers all the implementations found of the given base type, in one simple method.
-        /// </summary>
-        public static IRegistrationBuilder<object, ScanningActivatorData, DynamicRegistrationStyle>
-           RegisterAll(this ContainerBuilder builder, Type serviceBaseType)
-        {
-            return builder
-                .RegisterAssemblyTypes(AppDomain.CurrentDomain.GetReferencedAssemblies().ToArray())
-                .Where(serviceBaseType.IsAssignableFrom)
-                .As(serviceBaseType);
-        }
-
-        /// <summary>
-        /// A ContainerBuilder extension method that scans all the application current domain assemblies,
-        /// and registers all the implementations found of the given base type, in one simple method.
-        /// </summary>
-        public static IRegistrationBuilder<object, ScanningActivatorData, DynamicRegistrationStyle>
-           RegisterAll<TServiceBaseType>(this ContainerBuilder builder)
-        {
-            return builder.RegisterAll(typeof(TServiceBaseType));
-        }
-
         public static IRegistrationBuilder<object, ScanningActivatorData, DynamicRegistrationStyle>
             RegisterGenerics(this ContainerBuilder builder, Type openGenericType, string key = null)
         {
-            //var temp = AppDomain.CurrentDomain.GetReferencedAssemblies()
-            //    .SelectMany(assembly => assembly.GetTypes())
-            //    .Where(
-            //        type => type
-            //            .GetInterfaces()
-            //            .Where(interfaceType => interfaceType.IsClosedTypeOf(openGenericType))
-            //            .Count() > 0)
-            //    .ToList();
-            var assemblies = AppDomain.CurrentDomain.GetReferencedAssemblies().ToArray();
+            var typeRegistrationBuilder = builder
+                .RegisterAssemblyTypes(BuildManager.GetReferencedAssemblies().Cast<Assembly>().ToArray());
 
             return key == null
-                ? builder
-                    .RegisterAssemblyTypes(assemblies)
+                ? typeRegistrationBuilder
                     .As(type => type
                         .GetInterfaces()
                         .Where(interfaceType => interfaceType.IsClosedTypeOf(openGenericType)))
-                : builder
-                    .RegisterAssemblyTypes(assemblies)
+                : typeRegistrationBuilder
                     .As(type => type
                         .GetInterfaces()
                         .Where(interfaceType => interfaceType.IsClosedTypeOf(openGenericType))
@@ -92,7 +61,7 @@ namespace Aenima.Autofac
         /// </summary>
         public static IModuleRegistrar RegisterAllModules(this ContainerBuilder builder)
         {
-            return builder.RegisterAssemblyModules(AppDomain.CurrentDomain.GetReferencedAssemblies().ToArray());
+            return builder.RegisterAssemblyModules(BuildManager.GetReferencedAssemblies().Cast<Assembly>().ToArray());
         }
     }
 }

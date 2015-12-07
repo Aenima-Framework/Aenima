@@ -7,7 +7,7 @@ namespace Aenima.Serialization.Tests
     [TestFixture]
     public class JsonNetEventSerializerTests
     {
-        public class SerializerWorks : object
+        public class SerializerWorks
         {
             public bool BecauseItsAwesome { get; set; }
 

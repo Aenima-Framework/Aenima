@@ -44,7 +44,9 @@ namespace Aenima
                 .ConfigureAwait(false);
         }
 
-        public static Task<TAggregate> GetById<TAggregate>(this IRepository repository, string aggregateId)
+        public static Task<TAggregate> GetById<TAggregate>(
+            this IRepository repository, 
+            string aggregateId)
             where TAggregate : class, IAggregate, new()
         {
             return repository.GetById<TAggregate>(aggregateId, int.MaxValue);

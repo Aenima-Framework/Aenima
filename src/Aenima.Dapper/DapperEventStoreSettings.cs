@@ -3,8 +3,9 @@ using Aenima.System.Extensions;
 
 namespace Aenima.Dapper
 {
-
     //aenima:dapper:connection
+    //aenima:dapper:table
+    //aenima:dapper:schema
 
     //aenima:polly:retries:3
     //aenima:polly:retries-interval:1
@@ -12,7 +13,10 @@ namespace Aenima.Dapper
 
     public class DapperEventStoreSettings
     {
-        public DapperEventStoreSettings(string connectionString, string tableName = null, string tableSchema = null)
+        public DapperEventStoreSettings(
+            string connectionString, 
+            string tableName = null, 
+            string tableSchema = null)
         {
             ConnectionString = connectionString;
             TableName        = tableName.IsNullOrWhiteSpace() ? "EventStream" : tableName;
@@ -20,7 +24,7 @@ namespace Aenima.Dapper
             FullTableName    = $"{TableSchema}.{TableName}";
         }
        
-        public string ConnectionString { get; private set; }
+        public string ConnectionString { get; }
 
         /// <summary>
         /// Gets or sets the table schema.
@@ -41,6 +45,6 @@ namespace Aenima.Dapper
         /// <para>Default: 'dbo.EventStream'</para>
         /// </summary>
         /// <value>The full table name, including the schema.</value>
-        public string FullTableName { get; private set; }
+        public string FullTableName { get; }
     }
 }

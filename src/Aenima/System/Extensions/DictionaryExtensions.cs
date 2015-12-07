@@ -10,7 +10,7 @@ namespace Aenima.System.Extensions
         public static TDictionary Merge<TDictionary, TKey, TValue>(this TDictionary master, params IDictionary<TKey, TValue>[] slaves)
             where TDictionary : IDictionary<TKey, TValue>
         {
-            Guard.NullOrDefault(() => master);
+            Block.Default(() => master);
 
             slaves
                 .Where(slave => slave != null)
@@ -20,7 +20,6 @@ namespace Aenima.System.Extensions
         }
     }
 
-
     public static class ConcurrentDictionaryExtensions
     {
         public static TValue LazyGetOrAdd<TKey, TValue>(
@@ -28,9 +27,11 @@ namespace Aenima.System.Extensions
             TKey key,
             Func<TKey, TValue> valueFactory)
         {
-            Guard.NullOrDefault(() => dictionary);
-            var result = dictionary.GetOrAdd(key, new Lazy<TValue>(() => valueFactory(key)));
-            return result.Value;
+            Block.Default(() => dictionary);
+
+            return dictionary
+                .GetOrAdd(key, new Lazy<TValue>(() => valueFactory(key)))
+                .Value;
         }
     }
 }
